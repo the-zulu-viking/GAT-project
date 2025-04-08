@@ -31,7 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    "TravelPlanner",
+    "booking_system",
     'phonenumber_field',
     "django.contrib.admin",
     "django.contrib.auth",

@@ -12,9 +12,8 @@ class Consultant(models.Model):
         "Other": "Other",
     }
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    shirt_size = models.CharField(max_length=1, choices=types)
+    type = models.CharField(max_length=32, choices=types)
     
-
 class Agent(models.Model):
     company = models.CharField(max_length=255)  
     email = models.EmailField()
@@ -24,7 +23,6 @@ class Agent(models.Model):
 
     def __str__(self):
         return self.company
-
 
 class Generated(models.Model):
     title = title = models.CharField(max_length=255, unique=True)
@@ -42,10 +40,9 @@ class TripStatus(models.Model):
     def __str__(self):
         return self.title
 
-
 class PaymentStatus(models.Model):
     title = models.CharField(max_length=255, unique=True)
-    description = models.CharField(max_length=255)
+    description = models.CharField(max_length=255, blank= True, null=True)
 
     class Meta: 
         verbose_name_plural = "PaymentStatuses"
@@ -65,7 +62,7 @@ class Guest(models.Model):
         on_delete=models.SET_NULL,
         blank=True,
         null=True,
-        related_name="emergency_contact"
+        related_name="emergency_for"
     )
 
     def __str__(self):
@@ -84,18 +81,30 @@ class Guest(models.Model):
         if self.emergency_contact and self.emergency_contact == self:
             raise ValidationError("A guest cannot be their own emergency contact.")
 
-
 class Trip(models.Model):
     name = models.CharField(max_length=64)
     number_of_guests = models.IntegerField()
-    guests = models.ManyToManyField(Guest, related_name="guests")
-    start_date = models.DateTimeField()
-    end_date = models.DateTimeField()
-    payment_status = models.ForeignKey(PaymentStatus)
-    trip_status = models.ForeignKey(TripStatus)
-    no_consultant = models.ForeignKey(Consultant)
-    sa_consultant = models.ForeignKey(Consultant)
-    note = models.TextField(blank=True)
+    guests = models.ManyToManyField(Guest, related_name="guests", blank= True, null=True)
+    start_date = models.DateField()
+    end_date = models.DateField()
+    payment_status = models.ForeignKey(PaymentStatus, on_delete=models.PROTECT, blank= True, null=True)
+    trip_status = models.ForeignKey(TripStatus,  on_delete=models.PROTECT, blank= True, null=True)
+    no_consultant = models.ForeignKey(
+        Consultant, 
+        on_delete=models.PROTECT, 
+        null=True, 
+        blank= True,
+        related_name="no_consultant_trips"
+    )
+    sa_consultant = models.ForeignKey(
+        Consultant, 
+        on_delete=models.PROTECT, 
+        null=True, 
+        blank= True,
+        related_name="sa_consultant_trips"
+    )
+
+    note = models.TextField(blank=True, null=True)
 
     class Meta:
         ordering = ["start_date"]
@@ -126,29 +135,82 @@ class Basis(models.Model):
     def __str__(self):
         return self.code
 
-    
-class Stay(models.Model):  
-    trip = models.ForeignKey(Trip, on_delete=models.PROTECT)
-    units = models.IntegerField()
-    basis = models.ForeignKey(Basis, on_delete=models.PROTECT) 
-    price = models.DecimalField(max_digits=10, decimal_places=2)
-    currency = models.ForeignKey(Currency, on_delete=models.PROTECT)
-    note = models.TextField(blank=True)
-
-
 class Supplier(models.Model):
     name = models.CharField(max_length=64)
 
+    def __str__(self):
+        return self.name
+    
+class Accommodation(models.Model):  
+    trip = models.ForeignKey(Trip, on_delete=models.PROTECT)
+    supplier = models.ForeignKey(Supplier, on_delete=models.PROTECT)
+    units = models.IntegerField(blank=True, null=True)
+    arrival_date = models.DateField()
+    departure_date = models.DateField()
+    basis = models.ForeignKey(Basis, on_delete=models.PROTECT, blank=True, null=True) 
+    price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    currency = models.ForeignKey(Currency, on_delete=models.PROTECT, blank=True, null=True)
+    reservation_number = models.CharField(max_length=256,blank=True, null=True )
+    tax_invoice= models.BooleanField(blank=True, null=True)
+    paid= models.BooleanField(blank=True, null=True)
+    paid_date = models.DateField(blank=True, null=True)
+    note = models.TextField(blank=True)
 
-class Flight():
-    trip = models.ForeignKey()
-    number = models.CharField(max_length=16)
-    depature_date = models.DateField()
-    depature_time = models.TimeField()
-    depature_airport = models
+    def save(self, *args, **kwargs):
+        # Automatically update 'paid' based on 'paid_date'
+        self.paid = bool(self.paid_date)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.trip} -- {self.supplier}"
+
+class Flight(models.Model):
+    trip = models.ForeignKey(Trip, on_delete=models.CASCADE)
+    number = models.CharField(max_length=16) 
+    arrival_date = models.DateField(blank=True, null=True)
+    arrival_time = models.TimeField(blank=True, null=True)
+    arrival_airport = models.CharField(max_length=64, blank=True, null=True) 
+    departure_date = models.DateField(blank=True, null=True)
+    departure_time = models.TimeField(blank=True, null=True)
+    departure_airport = models.CharField(max_length=64, blank=True, null=True)
+    price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    currency = models.ForeignKey(Currency, on_delete=models.PROTECT, blank=True, null=True)
+    booked_by = models.CharField(max_length=16) 
+    note = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return self.number
+    
+class ServiceType(models.Model):
+    title = models.CharField(max_length=255, unique=True)
+    description = models.CharField(max_length=255, blank = True, null=True)
+
+    class Meta: 
+        verbose_name_plural = "ServiceTypes"
+
+    def __str__(self):
+            return self.title
+
+class Service(models.Model): 
+    trip = models.ForeignKey(Trip, on_delete=models.PROTECT)
+    supplier = models.ForeignKey(Supplier, on_delete=models.PROTECT)
+    service = models.ForeignKey(ServiceType, on_delete=models.PROTECT)
+    date = models.DateField()
+    price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    currency = models.ForeignKey(Currency, on_delete=models.PROTECT, blank=True, null=True)
+    reservation_number = models.CharField(max_length=256,blank=True, null=True )
+    tax_invoice= models.BooleanField(blank=True, null=True)
+    paid= models.BooleanField(blank=True, null=True)
+    paid_date = models.DateField(blank=True, null=True)
+    note = models.TextField(blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        # Automatically update 'paid' based on 'paid_date'
+        self.paid = bool(self.paid_date)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.trip} -- {self.supplier}"
 
 
 
