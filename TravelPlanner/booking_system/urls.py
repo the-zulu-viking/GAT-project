@@ -18,6 +18,9 @@ from django.contrib import admin
 from django.urls import path, include
 from booking_system import views
 
+
 urlpatterns = [
-    path("", views.home,name='home' )
+    path("", views.home ,name='home' ),
+    path("trips", views.trips_overview, name = 'trips_overview'),
+    path("trips/create", views.create_trip, name = 'create_trip'),
 ]
