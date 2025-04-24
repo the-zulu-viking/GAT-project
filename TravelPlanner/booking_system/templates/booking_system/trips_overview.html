@@ -29,6 +29,7 @@
                     <td>{{ trip.start_date|date:"M d, Y" }}</td>
                     <td>{{ trip.end_date|date:"M d, Y" }}</td>
                     <td>{{ trip.trip_status}}</td>
+                    <td><a href="{% url 'view_trip' trip.id %}" class="stretched-link table-hover"></a></td>
                 </tr>
                 {% empty %}
                 <tr>

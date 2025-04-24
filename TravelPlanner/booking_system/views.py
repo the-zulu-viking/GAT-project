@@ -11,7 +11,7 @@ from .forms import TripForm
 # Create your views here.
 
 def home(request):
-    return render(request,"booking_system/home.html")
+    return render(request,"home.html")
 
 def trips_overview(request):
     trips = Trip.objects.order_by()[:10]
@@ -31,3 +31,8 @@ def create_trip(request):
         form = TripForm()
 
     return render(request, 'booking_system/trip_form.html', {'form': form})
+
+def trip_view(request,trip_id):
+    trip = get_object_or_404(Trip,id=trip_id)
+    return render(request, 'booking_system/trip_view.html', {'trip': trip})
+    

@@ -13,6 +13,10 @@ class Consultant(models.Model):
     }
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     type = models.CharField(max_length=32, choices=types)
+
+    def __str__(self):
+        return self.user.get_full_name() or self.user.username
+
     
 class Agent(models.Model):
     company = models.CharField(max_length=255)  
