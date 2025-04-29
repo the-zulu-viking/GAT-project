@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Create Trip{% endblock %}
+
+{% block body %}
+
+<h2 class="mb-4">Create New Trip</h2>
+
+<div class="progress mb-4">
+  <div class="progress-bar" style="width: 33%">Step 1: Basic Info</div>
+</div>
+
+<form method="POST" novalidate>
+    {% csrf_token %}
+    
+    {% if form.non_field_errors %}
+    <div class="alert alert-danger">
+        {{ form.non_field_errors }}
+    </div>
+    {% endif %}
+
+    <div class="row g-3">
+        {% for field in form %}
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.help_text %}
+                        <div class="form-text">{{ field.help_text }}</div>
+                    {% endif %}
+                    {% if field.errors %}
+                        <div class="text-danger small">{{ field.errors }}</div>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    </div> 
+
+    <div class="mt-6 text-end">
+        <button type="submit" class="btn btn-primary">Submit Trip</button>
+    </div>
+</form>
+
+{% endblock %}

@@ -6,11 +6,11 @@ from django.core.exceptions import ValidationError
 # Create your models here.
 
 class Consultant(models.Model):
-    types = {
-        "NOR": "Norwegian",
-        "ZAR": "South African",
-        "Other": "Other",
-    }
+    types = [
+    ("NOR", "Norwegian"),
+    ("ZAR", "South African"),
+    ("OTHER", "Other"),
+    ]
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     type = models.CharField(max_length=32, choices=types)
 
@@ -29,7 +29,7 @@ class Agent(models.Model):
         return self.company
 
 class Generated(models.Model):
-    title = title = models.CharField(max_length=255, unique=True)
+    title = models.CharField(max_length=255, unique=True)
 
     def __str__(self):
         return self.title
@@ -71,6 +71,9 @@ class Guest(models.Model):
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
+    
+    def name(self):
+        return f"{self.first_name} {self.last_name}"
 
     def age(self):
         """Returns the age of the guest."""
@@ -88,7 +91,7 @@ class Guest(models.Model):
 class Trip(models.Model):
     name = models.CharField(max_length=64)
     number_of_guests = models.IntegerField()
-    guests = models.ManyToManyField(Guest, related_name="guests", blank=True)
+    guests = models.ManyToManyField(Guest, related_name="trips", blank=True)
     start_date = models.DateField()
     end_date = models.DateField()
     generated = models.ForeignKey(Generated, on_delete=models.SET_NULL, blank=True, null=True)

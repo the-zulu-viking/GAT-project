@@ -24,4 +24,6 @@ urlpatterns = [
     path("trips", views.trips_overview, name = 'trips_overview'),
     path("trips/create", views.create_trip, name = 'create_trip'),
     path("trips/<trip_id>", views.trip_view, name = 'view_trip'),
+    path("guest/", views.guest_overview, name = 'guest_overview'),
+    path("guest/<guest_id>", views.guest_view, name = 'guest_view'),
 ]

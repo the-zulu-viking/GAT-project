@@ -19,7 +19,7 @@ def trips_overview(request):
     context = {
         'trips' : trips 
         }
-    return render(request,"booking_system/trips_overview.html", context=context)
+    return render(request,"booking_system/trip/trips_overview.html", context=context)
 
 def create_trip(request):
     if request.method == 'POST':
@@ -30,9 +30,22 @@ def create_trip(request):
     else:
         form = TripForm()
 
-    return render(request, 'booking_system/trip_form.html', {'form': form})
+    return render(request, 'booking_system//trip/trip_form.html', {'form': form})
 
 def trip_view(request,trip_id):
     trip = get_object_or_404(Trip,id=trip_id)
-    return render(request, 'booking_system/trip_view.html', {'trip': trip})
-    
+    return render(request, 'booking_system//trip/trip_view.html', {'trip': trip})
+
+
+def guest_overview(request):
+    guests = Guest.objects.order_by()[:10]
+
+    context = {
+        'guests':guests
+        }
+    return render(request,"booking_system/guest/guest_overview.html", context=context)
+
+
+def guest_view(request,guest_id):
+    guest = get_object_or_404(Guest,id=guest_id)
+    return render(request, 'booking_system/guest/guest_view.html', {'guest': guest})

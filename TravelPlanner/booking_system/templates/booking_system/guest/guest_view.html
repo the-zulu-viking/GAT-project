@@ -1,0 +1,37 @@
+{%extends "base.html" %}
+
+
+{%block title %}{{ guest }}{%endblock title%}
+
+
+{%block body%}
+
+<div class="container mt-5">
+  <div class="card shadow-lg border-0">
+    <div class="card-body">
+      <h2 class="card-title mb-4">{{ guest  }}</h2>
+
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <p><strong>Date of Birth:</strong> {{ guest.date_of_birth }}</p>
+        </div>
+        <div class="col-md-6">
+          <p><strong>Email:</strong> {{ guest.email }}</p>
+        </div>
+      </div>
+
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <p><strong>Mobile:</strong> {{ guest.mobile }} </p>
+        </div>
+
+
+      {% comment %}
+      <a href="{% url 'trip_list' %}" class="btn btn-outline-secondary mt-4">← Back to Trips</a>
+      {% endcomment %}
+
+      
+    </div>
+  </div>
+</div>
+{% endblock %}
