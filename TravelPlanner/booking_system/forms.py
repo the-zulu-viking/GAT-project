@@ -1,5 +1,5 @@
 from django import forms
-from .models import Trip, Guest
+from .models import Trip, Guest, Flight
 
 class TripForm(forms.ModelForm):
     class Meta:
@@ -53,8 +53,34 @@ class GuestSelectionForm(forms.Form):
         widget=forms.TextInput(attrs={'class': 'form-control'})
     )
 
-from django.forms import formset_factory
 
-GuestFormSet = formset_factory(GuestSelectionForm, extra=0)  # We'll set extra dynamically
+class CreateGuestForm(forms.ModelForm):
+    class Meta:
+        model = Guest
+        fields = ['first_name', 'last_name', 'date_of_birth', 'email', 'mobile']
+        widgets = {
+            'first_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'last_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'date_of_birth': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control'}),
+            'mobile': forms.TextInput(attrs={'class': 'form-control'}),
+        }
 
+class FlightForm(forms.ModelForm):
+    class Meta:
+        model = Flight
+        exclude = ['trip']
+        widgets = {
+            'number': forms.TextInput(attrs={'class': 'form-control'}),
+            'arrival_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'arrival_time': forms.TimeInput(attrs={'type': 'time', 'class': 'form-control'}),
+            'arrival_airport': forms.TextInput(attrs={'class': 'form-control'}),
+            'departure_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'departure_time': forms.TimeInput(attrs={'type': 'time', 'class': 'form-control'}),
+            'departure_airport': forms.TextInput(attrs={'class': 'form-control'}),
+            'price': forms.NumberInput(attrs={'class': 'form-control'}),
+            'currency': forms.Select(attrs={'class': 'form-select'}),
+            'booked_by': forms.TextInput(attrs={'class': 'form-control'}),
+            'note': forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
+        }
 

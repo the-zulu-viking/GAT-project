@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}Create New Guest{% endblock %}
+
+{% block body %}
+<h2 class="mb-4">Create Guest {{ slot_index|add:1 }} of {{ trip.number_of_guests }}</h2>
+
+<form method="POST" novalidate>
+  {% csrf_token %}
+  
+  {% for field in form %}
+    <div class="mb-3">
+      <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+      {{ field }}
+      {% if field.errors %}
+        <div class="text-danger small">{{ field.errors }}</div>
+      {% endif %}
+    </div>
+  {% endfor %}
+
+  <div class="d-flex justify-content-between mt-4">
+    <a href="{% url 'trip_guest_search' trip.id slot_index %}" class="btn btn-secondary">Back to Search</a>
+    <button type="submit" class="btn btn-success">Create & Continue</button>
+  </div>
+</form>
+{% endblock %}

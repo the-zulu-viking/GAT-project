@@ -3,8 +3,8 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, permission_required
 from django.http import HttpResponse
 import datetime 
-from django.forms import formset_factory
 from django.urls import include, path
+from .utils import search_guests
 from .models import *
 from .forms import *
 
@@ -22,26 +22,42 @@ def trips_overview(request):
         }
     return render(request,"booking_system/trip/trips_overview.html", context=context)
 
+# Step 1: Creating a trip
+
 def create_trip(request):
     if request.method == 'POST':
         form = TripForm(request.POST)
         if form.is_valid():
             trip = form.save()
-            return redirect('trip_add_guests', trip_id=trip.id)  # Redirect to Step 2
+            return redirect('trip_guest_search', trip_id=trip.id, slot_index=0) # Redirect to Step 2
     else:
         form = TripForm()
 
     return render(request, 'booking_system/trip/trip_form.html', {'form': form})
 
+def edit_trip(request, trip_id):
+    trip = get_object_or_404(Trip, id=trip_id)
+
+    if request.method == 'POST':
+        form = TripForm(request.POST, instance=trip)
+        if form.is_valid():
+            form.save()
+            return redirect('trip_guest_search', trip_id=trip.id, slot_index=0)
+    else:
+        form = TripForm(instance=trip)
+
+    return render(request, 'booking_system/trip/trip_form.html', {
+        'form': form,
+        'editing': True,
+        'trip': trip
+    })
+
+# Step 2: Adding Guests 
 
 def trip_guest_search(request, trip_id, slot_index):
     trip = get_object_or_404(Trip, id=trip_id)
     query = request.GET.get("q", "")
-    guests = Guest.objects.filter(
-        models.Q(first_name__icontains=query) |
-        models.Q(last_name__icontains=query) |
-        models.Q(email__icontains=query)
-    ) if query else []
+    guests = search_guests(query) if query else []
 
     return render(request, "booking_system/trip/trip_guest_search.html", {
         "trip": trip,
@@ -51,46 +67,112 @@ def trip_guest_search(request, trip_id, slot_index):
     })
 
 
-def trip_add_guests(request, trip_id):
+def trip_assign_guest(request, trip_id, slot_index, guest_id):
+    trip = get_object_or_404(Trip, id=trip_id)
+    guest = get_object_or_404(Guest, id=guest_id)
+
+    # Save to session
+    guest_slots = request.session.get('guest_slots', {})
+    guest_slots[str(slot_index)] = guest_id
+    request.session['guest_slots'] = guest_slots
+
+    #assigns guest to the trip
+    if guest not in trip.guests.all():
+        trip.guests.add(guest)
+
+    # Redirect to next step
+    next_slot = slot_index + 1
+    if next_slot < trip.number_of_guests:
+        return redirect('trip_guest_search', trip_id=trip.id, slot_index=next_slot)
+    else:
+        return redirect('trip_add_flights', trip_id=trip.id)
+
+
+def trip_create_guest(request, trip_id, slot_index):
     trip = get_object_or_404(Trip, id=trip_id)
 
-    GuestFormSet = formset_factory(GuestSelectionForm, extra=trip.number_of_guests)
+    if request.method == 'POST':
+        form = CreateGuestForm(request.POST)
+        if form.is_valid():
+            guest = form.save()
 
-    if request.method == "POST":
-        formset = GuestFormSet(request.POST)
-        if formset.is_valid():
-            trip.guests.clear()  # Clear existing guests
+            # Save to session
+            guest_slots = request.session.get('guest_slots', {})
+            guest_slots[str(slot_index)] = guest.id
+            request.session['guest_slots'] = guest_slots
 
-            for form in formset:
-                existing_guest = form.cleaned_data.get('existing_guest')
-                first_name = form.cleaned_data.get('first_name')
-                last_name = form.cleaned_data.get('last_name')
-                date_of_birth = form.cleaned_data.get('date_of_birth')
-                email = form.cleaned_data.get('email')
-                mobile = form.cleaned_data.get('mobile')
+            # ✅ Immediately attach guest to the trip
+            if guest not in trip.guests.all():
+                trip.guests.add(guest)
 
-                if existing_guest:
-                    trip.guests.add(existing_guest)
-                elif first_name and last_name and email and mobile:
-                    # Create a new guest
-                    guest = Guest.objects.create(
-                        first_name=first_name,
-                        last_name=last_name,
-                        date_of_birth=date_of_birth,
-                        email=email,
-                        mobile=mobile
-                    )
-                    trip.guests.add(guest)
-                else:
-                    # No guest selected or created, ignore this slot
-                    pass
+            next_slot = slot_index + 1
+            if next_slot < trip.number_of_guests:
+                return redirect('trip_guest_search', trip_id=trip.id, slot_index=next_slot)
+            else:
+                return redirect('trip_add_flights', trip_id=trip.id)
 
-            return redirect('trip_add_accommodations', trip_id=trip.id)
     else:
-        formset = GuestFormSet()
+        form = CreateGuestForm()
 
-    return render(request, "booking_system/trip/trip_guests.html", {"trip": trip, "formset": formset})
+    return render(request, 'booking_system/trip/trip_create_guest.html', {
+        'form': form,
+        'trip': trip,
+        'slot_index': slot_index,
+    })
 
+def trip_remove_guest(request, trip_id, guest_id):
+    trip = get_object_or_404(Trip, id=trip_id)
+    guest = get_object_or_404(Guest, id=guest_id)
+
+    # Remove from trip.guest list
+    trip.guests.remove(guest)
+
+    # Remove from session guest_slots
+    guest_slots = request.session.get("guest_slots", {})
+    slot_to_remove = None
+
+    for slot, gid in guest_slots.items():
+        if str(gid) == str(guest_id):
+            slot_to_remove = slot
+            break
+
+    if slot_to_remove is not None:
+        del guest_slots[slot_to_remove]
+        request.session["guest_slots"] = guest_slots
+
+    # Redirect to next open slot
+    filled_slots = set(int(k) for k in guest_slots.keys())
+    total_slots = trip.number_of_guests
+    open_slots = [i for i in range(total_slots) if i not in filled_slots]
+
+    if open_slots:
+        next_slot = min(open_slots)
+        return redirect("trip_guest_search", trip_id=trip.id, slot_index=next_slot)
+    else:
+        # All slots filled — fallback (e.g., trip view or accommodation step)
+        return redirect("trip_view", trip_id=trip.id)
+
+# Step 3 Adding flights
+
+def trip_add_flights(request, trip_id):
+    trip = get_object_or_404(Trip, id=trip_id)
+    flights = Flight.objects.filter(trip=trip)
+
+    if request.method == 'POST':
+        form = FlightForm(request.POST)
+        if form.is_valid():
+            flight = form.save(commit=False)
+            flight.trip = trip
+            flight.save()
+            return redirect('trip_add_flights', trip_id=trip.id)
+    else:
+        form = FlightForm()
+
+    return render(request, 'booking_system/trip/add_flights.html', {
+        'trip': trip,
+        'form': form,
+        'flights': flights
+    })
 
 
 def trip_view(request,trip_id):

@@ -19,14 +19,48 @@ from django.urls import path, include
 from booking_system import views
 
 urlpatterns = [
-    path("", views.home, name='home'),
+    path("", 
+         views.home, 
+         name='home'),
 
     # Trip URLs
-    path("trips", views.trips_overview, name='trips_overview'),
-    path("trips/<int:trip_id>", views.trip_view, name='view_trip'),  # View trip
-    path("trips/create/", views.create_trip, name='create_trip'),  # Step 1
-    path("trips/create/<int:trip_id>/guests", views.trip_add_guests, name='trip_add_guests'),  # Step 2
-    #path("trips/create/<int:trip_id>/accommodations", views.trip_add_accommodations, name='trip_add_accommodations'),  # Step 3
+    path("trips", 
+         views.trips_overview, 
+         name='trips_overview'),
+    path("trips/<int:trip_id>", 
+        views.trip_view, 
+        name='view_trip'),
+
+    # Step 1: Trip Details
+
+    path("trips/create/", 
+        views.create_trip, 
+        name='create_trip'),
+    path("trips/<int:trip_id>/edit",
+        views.edit_trip, 
+        name="edit_trip"),
+  
+    # Step 2: Guests
+
+    path("trips/create/<int:trip_id>/guest-slot/<int:slot_index>/search", 
+        views.trip_guest_search, 
+        name='trip_guest_search'),  # Search guest for a slot
+    path("trips/create/<int:trip_id>/guest-slot/<int:slot_index>/assign/<int:guest_id>",
+        views.trip_assign_guest,
+        name="trip_assign_guest"),
+    path("trips/create/<int:trip_id>/guest-slot/<int:slot_index>/create",
+        views.trip_create_guest,
+        name="trip_create_guest"),
+    path("trips/create/<int:trip_id>/guest/<int:guest_id>/remove",
+        views.trip_remove_guest,
+        name="trip_remove_guest"),
+
+    # Step 3: Flights
+
+    path("trips/create/<int:trip_id>/flights",
+        views.trip_add_flights,
+        name="trip_add_flights"),
+
 
     # Guest URLs
     path("guest/", views.guest_overview, name='guest_overview'),

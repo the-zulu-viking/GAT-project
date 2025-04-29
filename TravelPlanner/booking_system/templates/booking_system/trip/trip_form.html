@@ -4,7 +4,8 @@
 
 {% block body %}
 
-<h2 class="mb-4">Create New Trip</h2>
+<h2 class="mb-4">{% if editing %}Edit Trip{% else %}Create New Trip{% endif %}</h2>
+
 
 <div class="progress mb-4">
   <div class="progress-bar" style="width: 33%">Step 1: Basic Info</div>

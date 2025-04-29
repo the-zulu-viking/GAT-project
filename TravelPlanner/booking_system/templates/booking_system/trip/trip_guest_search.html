@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %}Search Guest{% endblock %}
+
+{% block body %}
+
+<h2 class="mb-4">Step 2: Add Guest {{ slot_index|add:1 }} of {{ trip.number_of_guests }}</h2>
+
+<div class="progress mb-4">
+  <div class="progress-bar bg-info" style="width: 66%">Adding Guests</div>
+</div>
+
+<h5 class="mt-4">Guests Already Assigned to Trip:</h5>
+
+{% if trip.guests.all %}
+    <ul class="list-group mb-3">
+        {% for guest in trip.guests.all %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+    <span>{{ guest }}</span>
+    <div class="d-flex gap-2">
+        <span class="btn btn-sm btn-outline-success disabled">Assigned</span>
+        <a href="{% url 'trip_remove_guest' trip.id guest.id %}" 
+   class="btn btn-sm btn-outline-danger"
+   onclick="return confirm('Are you sure you want to remove {{ guest}} from this trip?');">
+   Remove
+</a>
+
+    </div>
+</li>
+
+        {% endfor %}
+    </ul>
+{% else %}
+    <p class="text-muted mb-3">No guests assigned yet.</p>
+{% endif %}
+
+<form method="get" class="mb-4 d-flex justify-content-between align-items-center gap-2 flex-wrap">
+    <input type="text" name="q" placeholder="Search by name or email" class="form-control flex-grow-1" value="{{ query }}">
+
+    <button type="submit" class="btn btn-primary">Search</button>
+
+    <a href="{% url 'trip_create_guest' trip.id slot_index %}" class="btn btn-outline-success"> Create New Guest </a>
+</form>
+
+
+{% if guests %}
+    <h5>Search Results:</h5>
+    <ul class="list-group">
+        {% for guest in guests %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                {{ guest }} ({{ guest.email }})
+                <a href="{% url 'trip_assign_guest' trip.id slot_index guest.id %}" class="btn btn-sm btn-success">Select</a>
+                {# TODO: Link to trip_assign_guest view #}
+            </li>
+        {% endfor %}
+    </ul>
+{% elif query %}
+    <p>No matching guests found. Please create a new guest.</p>
+
+{% endif %}
+
+<div class="mt-4 d-flex gap-2">
+    <a href="{% url 'edit_trip' trip.id %}" class="btn btn-secondary">Back to Trip Details</a>
+    <a href="{# todo we go to next step % url 'trip_view' trip.id %}" class="btn btn-warning">Skip Guest Adding</a>
+
+</div>
+
+
+{% endblock %}
