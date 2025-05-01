@@ -153,25 +153,33 @@ def trip_remove_guest(request, trip_id, guest_id):
         return redirect("trip_view", trip_id=trip.id)
 
 # Step 3 Adding flights
+from django.forms import modelformset_factory
 
 def trip_add_flights(request, trip_id):
     trip = get_object_or_404(Trip, id=trip_id)
-    flights = Flight.objects.filter(trip=trip)
+    FlightFormSet = modelformset_factory(Flight, form=FlightForm, extra=1, can_delete=True)
 
     if request.method == 'POST':
-        form = FlightForm(request.POST)
-        if form.is_valid():
-            flight = form.save(commit=False)
-            flight.trip = trip
-            flight.save()
+        formset = FlightFormSet(request.POST, queryset=Flight.objects.filter(trip=trip))
+        if formset.is_valid():
+            flights = formset.save(commit=False)
+
+            # Save new/edited flights
+            for flight in flights:
+                flight.trip = trip
+                flight.save()
+
+            # Delete marked-for-deletion flights
+            for obj in formset.deleted_objects:
+                obj.delete()
+
             return redirect('trip_add_flights', trip_id=trip.id)
     else:
-        form = FlightForm()
+        formset = FlightFormSet(queryset=Flight.objects.filter(trip=trip))
 
     return render(request, 'booking_system/trip/add_flights.html', {
         'trip': trip,
-        'form': form,
-        'flights': flights
+        'formset': formset,
     })
 
 

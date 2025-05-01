@@ -61,7 +61,8 @@
 
 <div class="mt-4 d-flex gap-2">
     <a href="{% url 'edit_trip' trip.id %}" class="btn btn-secondary">Back to Trip Details</a>
-    <a href="{# todo we go to next step % url 'trip_view' trip.id %}" class="btn btn-warning">Skip Guest Adding</a>
+    <a href="{% url 'trip_add_flights' trip.id %}" class="btn btn-warning">Skip Guest Adding</a>
+
 
 </div>
 
