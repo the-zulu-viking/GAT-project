@@ -1,0 +1,22 @@
+
+{% extends "base.html" %}
+
+{% block title %}Edit Guest{% endblock %}
+
+{% block body %}
+
+<h2> Edit Guest: {{ guest }}</h2>
+
+<form method="post">
+    {% csrf_token %}
+    <div class="p-3">
+    {{ form }}
+    </div>
+    <div class="mt-6 text-start ">
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+        <a class="btn btn-outline-danger" href="{% url 'guest_view' guest.id %}">Cancel</a> 
+    </div>
+
+</form>
+
+{% endblock body %}

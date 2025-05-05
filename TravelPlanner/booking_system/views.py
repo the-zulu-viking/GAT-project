@@ -1,9 +1,11 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, permission_required
 from django.http import HttpResponse
 import datetime 
 from django.urls import include, path
+from django.db.models import Q
 from .utils import search_guests
 from .models import *
 from .forms import *
@@ -15,7 +17,7 @@ def home(request):
     return render(request,"home.html")
 
 def trips_overview(request):
-    trips = Trip.objects.order_by()[:10]
+    trips = Trip.objects.order_by()
 
     context = {
         'trips' : trips 
@@ -75,17 +77,21 @@ def trip_assign_guest(request, trip_id, slot_index, guest_id):
     guest_slots = request.session.get('guest_slots', {})
     guest_slots[str(slot_index)] = guest_id
     request.session['guest_slots'] = guest_slots
-
+    
     #assigns guest to the trip
-    if guest not in trip.guests.all():
+    if trip.guests.filter(id=guest.id).exists():
+        messages.warning(request, f"{guest} is already assigned to this trip.")
+        return redirect('trip_guest_search', trip_id=trip.id, slot_index=slot_index)
+
+    else:
         trip.guests.add(guest)
 
-    # Redirect to next step
-    next_slot = slot_index + 1
-    if next_slot < trip.number_of_guests:
-        return redirect('trip_guest_search', trip_id=trip.id, slot_index=next_slot)
-    else:
-        return redirect('trip_add_flights', trip_id=trip.id)
+        # Redirect to next step
+        next_slot = slot_index + 1
+        if next_slot < trip.number_of_guests:
+            return redirect('trip_guest_search', trip_id=trip.id, slot_index=next_slot)
+        else:
+            return redirect('trip_add_flights', trip_id=trip.id)
 
 
 def trip_create_guest(request, trip_id, slot_index):
@@ -101,8 +107,8 @@ def trip_create_guest(request, trip_id, slot_index):
             guest_slots[str(slot_index)] = guest.id
             request.session['guest_slots'] = guest_slots
 
-            # ✅ Immediately attach guest to the trip
-            if guest not in trip.guests.all():
+            # attach guest to the trip
+            if not trip.guests.filter(id=guest.id).exists():
                 trip.guests.add(guest)
 
             next_slot = slot_index + 1
@@ -189,7 +195,16 @@ def trip_view(request,trip_id):
 
 
 def guest_overview(request):
-    guests = Guest.objects.order_by()[:10]
+    
+    search_query = request.GET.get('search', '')
+    if search_query:
+        guests = Guest.objects.filter(
+            Q(first_name__icontains=search_query) |
+            Q(last_name__icontains=search_query) |
+            Q(email__icontains=search_query)
+        )
+    else:
+        guests = Guest.objects.order_by()
 
     context = {
         'guests':guests
@@ -199,4 +214,25 @@ def guest_overview(request):
 
 def guest_view(request,guest_id):
     guest = get_object_or_404(Guest,id=guest_id)
-    return render(request, 'booking_system/guest/guest_view.html', {'guest': guest})
+    trips = guest.trips.all()
+    print(guest,trips)
+    return render(request, 'booking_system/guest/guest_view.html', 
+                  {'guest': guest,
+                   'trips':trips,})
+
+def guest_edit(request,guest_id):
+    guest = get_object_or_404(Guest,id=guest_id)
+
+    if request.method == 'POST':
+        form = EditGuestForm(request.POST, instance=guest)
+        if form.is_valid():
+            guest = form.save()
+
+            return redirect('guest_view', guest_id=guest.id)
+
+    else:
+        form = EditGuestForm(instance=guest)
+
+    return render(request, 'booking_system/guest/guest_edit.html', 
+                  {'guest': guest,
+                   "form": form})

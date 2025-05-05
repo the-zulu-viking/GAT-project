@@ -58,8 +58,8 @@ class Guest(models.Model):
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
     middle_name = models.CharField(max_length=50, blank=True, null=True)
-    date_of_birth = models.DateField()
-    email = models.EmailField(unique=True)
+    date_of_birth = models.DateField(blank=True, null=True)
+    email = models.EmailField(unique=True,blank=True, null=True)
     mobile = PhoneNumberField(region='NO')
     emergency_contact = models.ForeignKey(
         'self',
@@ -70,10 +70,11 @@ class Guest(models.Model):
     )
 
     def __str__(self):
-        return f"{self.first_name} {self.last_name}"
+        if self.middle_name:
+            return f"{self.first_name} {self.middle_name} {self.last_name}"
+        else: 
+            return f"{self.first_name} {self.last_name}"
     
-    def name(self):
-        return f"{self.first_name} {self.last_name}"
 
     def age(self):
         """Returns the age of the guest."""

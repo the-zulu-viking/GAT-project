@@ -65,4 +65,5 @@ urlpatterns = [
     # Guest URLs
     path("guest/", views.guest_overview, name='guest_overview'),
     path("guest/<int:guest_id>", views.guest_view, name='guest_view'),
+    path("guest/<int:guest_id>/edit", views.guest_edit, name='guest_edit'),
 ]

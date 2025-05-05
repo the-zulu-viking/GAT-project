@@ -12,8 +12,8 @@ class TripForm(forms.ModelForm):
             'end_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'note': forms.Textarea(attrs={ 
                     'class': 'form-control',
-                    'rows': 2,  # You can try 2, 3, or 4 — adjust as needed
-                    'style': 'resize: vertical;'  # Optional: lets user resize only vertically
+                    'rows': 2,  
+                    'style': 'resize: vertical;'  
 }),
             'generated': forms.Select(attrs={'class': 'form-select'}),
             'agent': forms.Select(attrs={'class': 'form-select'}),
@@ -65,6 +65,29 @@ class CreateGuestForm(forms.ModelForm):
             'email': forms.EmailInput(attrs={'class': 'form-control'}),
             'mobile': forms.TextInput(attrs={'class': 'form-control'}),
         }
+
+class EditGuestForm(forms.ModelForm):
+    class Meta:
+        model = Guest
+        fields = [
+            'first_name',
+            'last_name',
+            'middle_name',
+            'date_of_birth',
+            'email',
+            'mobile',
+            'emergency_contact'
+        ]
+        widgets = {
+            'first_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'last_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'middle_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'date_of_birth': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control'}),
+            'mobile': forms.TextInput(attrs={'class': 'form-control'}),
+            'emergency_contact': forms.Select(attrs={'class': 'form-select'}),
+        }
+
 
 class FlightForm(forms.ModelForm):
     class Meta:

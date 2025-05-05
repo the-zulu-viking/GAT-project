@@ -10,9 +10,14 @@
   <div class="progress-bar bg-info" style="width: 66%">Adding Guests</div>
 </div>
 
-<h5 class="mt-4">Guests Already Assigned to Trip:</h5>
+{% if messages %}
+  {% for message in messages %}
+    <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+  {% endfor %}
+{% endif %}
 
 {% if trip.guests.all %}
+<h5 class="mt-4">Guests Already Assigned to Trip:</h5>
     <ul class="list-group mb-3">
         {% for guest in trip.guests.all %}
             <li class="list-group-item d-flex justify-content-between align-items-center">
@@ -48,9 +53,8 @@
     <ul class="list-group">
         {% for guest in guests %}
             <li class="list-group-item d-flex justify-content-between align-items-center">
-                {{ guest }} ({{ guest.email }})
+                {{ guest }} : {{ guest.email }} 
                 <a href="{% url 'trip_assign_guest' trip.id slot_index guest.id %}" class="btn btn-sm btn-success">Select</a>
-                {# TODO: Link to trip_assign_guest view #}
             </li>
         {% endfor %}
     </ul>

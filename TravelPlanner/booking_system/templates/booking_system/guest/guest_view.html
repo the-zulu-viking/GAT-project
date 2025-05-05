@@ -24,14 +24,22 @@
         <div class="col-md-6">
           <p><strong>Mobile:</strong> {{ guest.mobile }} </p>
         </div>
-
-
-      {% comment %}
-      <a href="{% url 'trip_list' %}" class="btn btn-outline-secondary mt-4">← Back to Trips</a>
-      {% endcomment %}
-
-      
-    </div>
+        {% if guest.emergency_contact %}
+        <div class="col-md-6">
+          <p><strong>Emergancy Contact:</strong> <a href="{% url 'guest_view' guest.emergency_contact.id %}" >{{guest.emergency_contact }} {{guest.emergency_contact.mobile }}</a> </p>
+        </div>
+        {% endif %}
+      </div>
+     
+      <div>
+    <a href="{% url 'guest_overview' %}" class="btn btn-outline-primary mt-4">← Back to Guests</a>
+    <a href="{% url 'guest_edit' guest.id %}" class="btn btn-primary mt-4 "> <i class="bi bi-pencil-square"> </i> Edit</a>
+    
+      </div>
   </div>
+  {% include "trip_list.html" %} 
 </div>
+
+
+
 {% endblock %}

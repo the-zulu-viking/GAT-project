@@ -81,9 +81,10 @@
       </div>
       {% endif %}
 
-      {% comment %}
-      <a href="{% url 'trip_list' %}" class="btn btn-outline-secondary mt-4">← Back to Trips</a>
-      {% endcomment %}
+      
+      <a href="{% url 'trips_overview' %}" class="btn btn-outline-secondary mt-4">← Back to Trips</a>
+      
+      <a href="{% url 'edit_trip' trip.id %}" class="btn btn-primary mt-4"> <i class="bi bi-pencil-square"> </i> Edit Trip</a>
     </div>
   </div>
 </div>
