@@ -34,10 +34,10 @@ urlpatterns = [
     # Step 1: Trip Details
 
     path("trips/create/", 
-        views.create_trip, 
+        views.trip_form, 
         name='create_trip'),
     path("trips/<int:trip_id>/edit",
-        views.edit_trip, 
+        views.trip_form, 
         name="edit_trip"),
   
     # Step 2: Guests

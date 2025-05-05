@@ -17,40 +17,34 @@ def home(request):
     return render(request,"home.html")
 
 def trips_overview(request):
-    trips = Trip.objects.order_by()
+    trips = Trip.objects.all()
 
     context = {
         'trips' : trips 
         }
     return render(request,"booking_system/trip/trips_overview.html", context=context)
 
-# Step 1: Creating a trip
+# Step 1: Creating a trip or editting 
 
-def create_trip(request):
-    if request.method == 'POST':
-        form = TripForm(request.POST)
-        if form.is_valid():
-            trip = form.save()
-            return redirect('trip_guest_search', trip_id=trip.id, slot_index=0) # Redirect to Step 2
-    else:
-        form = TripForm()
-
-    return render(request, 'booking_system/trip/trip_form.html', {'form': form})
-
-def edit_trip(request, trip_id):
-    trip = get_object_or_404(Trip, id=trip_id)
+def trip_form(request, trip_id=None):
+    editing = trip_id is not None
+    trip = get_object_or_404(Trip, id=trip_id) if editing else None
 
     if request.method == 'POST':
         form = TripForm(request.POST, instance=trip)
         if form.is_valid():
-            form.save()
-            return redirect('trip_guest_search', trip_id=trip.id, slot_index=0)
+            trip = form.save()
+            action = request.POST.get('action')
+            if action == 'save_next':
+                return redirect('trip_guest_search', trip_id=trip.id, slot_index=0)
+            else:
+                return redirect('edit_trip', trip_id=trip.id)  # stays on same form
     else:
         form = TripForm(instance=trip)
 
     return render(request, 'booking_system/trip/trip_form.html', {
         'form': form,
-        'editing': True,
+        'editing': editing,
         'trip': trip
     })
 
