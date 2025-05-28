@@ -25,10 +25,10 @@
     <div class="d-flex gap-2">
         <span class="btn btn-sm btn-outline-success disabled">Assigned</span>
         <a href="{% url 'trip_remove_guest' trip.id guest.id %}" 
-   class="btn btn-sm btn-outline-danger"
-   onclick="return confirm('Are you sure you want to remove {{ guest}} from this trip?');">
-   Remove
-</a>
+                class="btn btn-sm btn-outline-danger"
+                onclick="return confirm('Are you sure you want to remove {{ guest}} from this trip?');">
+                Remove
+                </a>
 
     </div>
 </li>
@@ -65,7 +65,11 @@
 
 <div class="mt-4 d-flex gap-2">
     <a href="{% url 'edit_trip' trip.id %}" class="btn btn-secondary">Back to Trip Details</a>
+    {% if trip.number_of_guests == trip.guests.count %}
+    <a href="{% url 'trip_add_flights' trip.id %}" class="btn btn-warning">Add Flights</a>
+    {% else %}
     <a href="{% url 'trip_add_flights' trip.id %}" class="btn btn-warning">Skip Guest Adding</a>
+    {% endif %}
 
 
 </div>

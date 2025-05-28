@@ -16,13 +16,38 @@ from .forms import *
 def home(request):
     return render(request,"home.html")
 
+
 def trips_overview(request):
+    search_query = request.GET.get('search', '')
+    status_filter = request.GET.get('status', '')
+    start_date = request.GET.get('start_date', '')
+    end_date = request.GET.get('end_date', '')
+
     trips = Trip.objects.all()
+    statuses = TripStatus.objects.all()
+
+    if search_query:
+        trips = trips.filter(name__icontains=search_query)
+
+    if status_filter:
+        trips = trips.filter(trip_status=status_filter)
+
+    if start_date:
+        trips = trips.filter(start_date__gte=start_date)
+
+    if end_date:
+        trips = trips.filter(end_date__lte=end_date)
+
 
     context = {
-        'trips' : trips 
-        }
-    return render(request,"booking_system/trip/trips_overview.html", context=context)
+        'trips': trips,
+        'statuses': statuses,
+        'search_query': search_query,
+        'status_filter': status_filter,
+        'start_date': start_date,
+        'end_date': end_date,
+    }
+    return render(request, 'booking_system/trip/trips_overview.html', context)
 
 # Step 1: Creating a trip or editting 
 
@@ -54,6 +79,8 @@ def trip_guest_search(request, trip_id, slot_index):
     trip = get_object_or_404(Trip, id=trip_id)
     query = request.GET.get("q", "")
     guests = search_guests(query) if query else []
+
+
 
     return render(request, "booking_system/trip/trip_guest_search.html", {
         "trip": trip,
@@ -153,39 +180,98 @@ def trip_remove_guest(request, trip_id, guest_id):
         return redirect("trip_view", trip_id=trip.id)
 
 # Step 3 Adding flights
-from django.forms import modelformset_factory
+
 
 def trip_add_flights(request, trip_id):
     trip = get_object_or_404(Trip, id=trip_id)
-    FlightFormSet = modelformset_factory(Flight, form=FlightForm, extra=1, can_delete=True)
+    flights = Flight.objects.filter(trip=trip)
+    currencies = Currency.objects.all()
 
     if request.method == 'POST':
-        formset = FlightFormSet(request.POST, queryset=Flight.objects.filter(trip=trip))
-        if formset.is_valid():
-            flights = formset.save(commit=False)
-
-            # Save new/edited flights
-            for flight in flights:
-                flight.trip = trip
-                flight.save()
-
-            # Delete marked-for-deletion flights
-            for obj in formset.deleted_objects:
-                obj.delete()
-
+        form = FlightForm(request.POST)
+        if form.is_valid():
+            flight = form.save(commit=False)
+            flight.trip = trip
+            flight.save()
             return redirect('trip_add_flights', trip_id=trip.id)
     else:
-        formset = FlightFormSet(queryset=Flight.objects.filter(trip=trip))
+        form = FlightForm()
 
     return render(request, 'booking_system/trip/add_flights.html', {
         'trip': trip,
-        'formset': formset,
+        'form': form,
+        'flights': flights,
+        'currencies':currencies
     })
 
+def trip_edit_flight(request, trip_id, flight_id):
+    trip = get_object_or_404(Trip, id=trip_id)
+    flight = get_object_or_404(Flight, id=flight_id, trip=trip)
+
+    if request.method == "POST":
+        form = FlightForm(request.POST, instance=flight)
+        if form.is_valid():
+            form.save()
+    return redirect('trip_add_flights', trip_id=trip.id)
+
+def trip_delete_flight(request, trip_id, flight_id):
+    trip = get_object_or_404(Trip, id=trip_id)
+    flight = get_object_or_404(Flight, id=flight_id, trip=trip)
+
+    if request.method == 'POST':
+        flight.delete()
+
+    return redirect('trip_add_flights', trip_id=trip.id)
+
+def trip_add_accommodations(request, trip_id):
+    trip = get_object_or_404(Trip, id=trip_id)
+    accommodations = Accommodation.objects.filter(trip=trip)
+
+    if request.method == "POST":
+        form = AccommodationForm(request.POST)
+        if form.is_valid():
+            accommodation = form.save(commit=False)
+            accommodation.trip = trip
+            accommodation.save()
+            return redirect("trip_add_accommodations", trip_id=trip.id)
+    else:
+        form = AccommodationForm()
+
+    return render(request, "booking_system/trip/add_accommodations.html", {
+        "trip": trip,
+        "form": form,
+        "accommodations": accommodations,
+    })
+
+def trip_delete_accommodation(request, trip_id, acc_id):
+    trip = get_object_or_404(Trip, id=trip_id)
+    accommodation = get_object_or_404(Accommodation, id=acc_id, trip=trip)
+
+    if request.method == "POST":
+        accommodation.delete()
+    return redirect("trip_add_accommodations", trip_id=trip.id)
+
+
+
+
+def create_supplier(request):
+    if request.method == "POST":
+        form = SupplierForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect(request.GET.get("next", "trips_overview"))
+    else:
+        form = SupplierForm()
+    
+    return render(request, "booking_system/accommodation/supplier_form.html", {
+        "form": form
+    })
 
 def trip_view(request,trip_id):
     trip = get_object_or_404(Trip,id=trip_id)
-    return render(request, 'booking_system//trip/trip_view.html', {'trip': trip})
+    flights = Flight.objects.filter(trip=trip)
+    print(flights)
+    return render(request, 'booking_system//trip/trip_view.html', {'trip': trip, 'flights':flights})
 
 
 def guest_overview(request):

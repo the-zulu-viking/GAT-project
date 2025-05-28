@@ -60,6 +60,26 @@ urlpatterns = [
     path("trips/create/<int:trip_id>/flights",
         views.trip_add_flights,
         name="trip_add_flights"),
+    path("trips/create/<int:trip_id>/flights/<int:flight_id>/edit",
+          views.trip_edit_flight,
+            name="trip_edit_flight"),
+    path("trips/create/<int:trip_id>/flights/<int:flight_id>/delete",
+          views.trip_delete_flight, 
+          name="trip_delete_flight"),
+
+    # Step 4: Accommodations
+    
+    path("trips/create/<int:trip_id>/accommodations", 
+         views.trip_add_accommodations, 
+         name="trip_add_accommodations"),
+    path("trips/create/<int:trip_id>/accommodations/<int:acc_id>/delete", 
+         views.trip_delete_accommodation, 
+         name="trip_delete_accommodation"),
+
+
+    path('supplier/new/',
+          views.create_supplier, 
+          name='create_supplier'),
 
 
     # Guest URLs

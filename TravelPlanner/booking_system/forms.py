@@ -1,5 +1,5 @@
 from django import forms
-from .models import Trip, Guest, Flight
+from .models import Trip, Guest, Flight, Accommodation, Supplier
 
 class TripForm(forms.ModelForm):
     class Meta:
@@ -106,4 +106,28 @@ class FlightForm(forms.ModelForm):
             'booked_by': forms.TextInput(attrs={'class': 'form-control'}),
             'note': forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
         }
+
+class AccommodationForm(forms.ModelForm):
+    class Meta:
+        model = Accommodation
+        exclude = ['trip']
+        widgets = {
+            'supplier': forms.Select(attrs={'class': 'form-select form-select-sm'}),
+            'arrival_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control form-control-sm'}),
+            'departure_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control form-control-sm'}),
+            'units': forms.NumberInput(attrs={'class': 'form-control form-control-sm'}),
+            'basis': forms.Select(attrs={'class': 'form-select form-select-sm'}),
+            'price': forms.NumberInput(attrs={'class': 'form-control form-control-sm', 'step': '0.01'}),
+            'currency': forms.Select(attrs={'class': 'form-select form-select-sm'}),
+            'reservation_number': forms.TextInput(attrs={'class': 'form-control form-control-sm'}),
+            'tax_invoice': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'paid_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control form-control-sm'}),
+            'note': forms.Textarea(attrs={'class': 'form-control form-control-sm', 'rows': 1}),
+        }
+
+class SupplierForm(forms.ModelForm):
+    class Meta:
+        model = Supplier
+        fields = ['name']
+
 

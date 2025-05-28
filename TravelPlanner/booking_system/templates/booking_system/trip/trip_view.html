@@ -24,6 +24,19 @@
         </div>
       </div>
 
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <p><strong>Payment Status:</strong>
+            <span class="badge bg-info text-dark">{{ trip.payment_status }}</span>
+          </p>
+        </div>
+        <div class="col-md-6">
+          <p><strong>Trip Status:</strong>
+            <span class="badge bg-primary">{{ trip.trip_status }}</span>
+          </p>
+        </div>
+      </div>
+
       {% if trip.guests.exists %}
       <div class="mb-3">
         <p><strong>Guests:</strong></p>
@@ -34,6 +47,48 @@
         </ul>
       </div>
       {% endif %}
+
+      {% if flights %}
+      <hr>
+      <h4 class="mb-3">Flights</h4>
+      <div class="table-responsive">
+        <table class="table table-bordered align-middle text-center">
+          <thead class="table-light">
+            <tr>
+              <th>Flight #</th>
+              <th>Departure Airport</th>
+              <th>Departure Date</th>
+              <th>Departure Time</th>
+              <th>Arrival Airport</th>
+              <th>Arrival Date</th>
+              <th>Arrival Time</th>
+              <th>Booked By</th>
+              <th>Currency</th>
+              <th>Price</th>
+              <th>Note</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for flight in flights %}
+            <tr>
+              <td>{{ flight.number|default_if_none:"" }}</td>
+              <td>{{ flight.departure_airport|default_if_none:"" }}</td>
+              <td>{{ flight.departure_date|date:"F d, Y"|default_if_none:"" }}</td>
+              <td>{{ flight.departure_time|default_if_none:"" }}</td>
+              <td>{{ flight.arrival_airport|default_if_none:"" }}</td>
+              <td>{{ flight.arrival_date|date:"F d, Y"|default_if_none:"" }}</td>
+              <td>{{ flight.arrival_time|default_if_none:"" }}</td>
+              <td>{{ flight.booked_by|default_if_none:"" }}</td>
+              <td>{{ flight.currency.code|default_if_none:"" }}</td>
+              <td>{{ flight.price|default_if_none:"" }}</td>
+              <td class="text-start">{{ flight.note|default_if_none:"" }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% endif %}
+      
 
       <hr>
 
@@ -48,18 +103,6 @@
         </div>
       </div>
 
-      <div class="row mb-3">
-        <div class="col-md-6">
-          <p><strong>Payment Status:</strong>
-            <span class="badge bg-info text-dark">{{ trip.payment_status }}</span>
-          </p>
-        </div>
-        <div class="col-md-6">
-          <p><strong>Trip Status:</strong>
-            <span class="badge bg-primary">{{ trip.trip_status }}</span>
-          </p>
-        </div>
-      </div>
 
       <div class="row mb-3">
         {% if trip.no_consultant %}
