@@ -107,6 +107,14 @@ class FlightForm(forms.ModelForm):
             'note': forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
         }
 
+    def clean(self):
+        cleaned_data = super().clean()
+        price = cleaned_data.get("price")
+        currency = cleaned_data.get("currency")
+
+        if price and not currency:
+            self.add_error('currency', "Please select a currency")
+
 class AccommodationForm(forms.ModelForm):
     class Meta:
         model = Accommodation
@@ -124,6 +132,14 @@ class AccommodationForm(forms.ModelForm):
             'paid_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control form-control-sm'}),
             'note': forms.Textarea(attrs={'class': 'form-control form-control-sm', 'rows': 1}),
         }
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        price = cleaned_data.get("price")
+        currency = cleaned_data.get("currency")
+
+        if price and not currency:
+            self.add_error('currency', "Please select a currency")
 
 class SupplierForm(forms.ModelForm):
     class Meta:

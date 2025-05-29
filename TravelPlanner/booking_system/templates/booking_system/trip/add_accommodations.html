@@ -20,7 +20,6 @@
         <th>Price</th>
         <th>Currency</th>
         <th>Reservation #</th>
-        <th>Tax Invoice</th>
         <th>Paid Date</th>
         <th>Note</th>
         <th>Action</th>
@@ -37,7 +36,6 @@
         <td>{{ acc.price }}</td>
         <td>{{ acc.currency }}</td>
         <td>{{ acc.reservation_number }}</td>
-        <td>{% if acc.tax_invoice %}✅{% else %}❌{% endif %}</td>
         <td>{{ acc.paid_date }}</td>
         <td>{{ acc.note }}</td>
         <td>
@@ -69,7 +67,6 @@
           <td>{{ form.price }}</td>
           <td>{{ form.currency }}</td>
           <td>{{ form.reservation_number }}</td>
-          <td class="text-center">{{ form.tax_invoice }}</td>
           <td>{{ form.paid_date }}</td>
           <td>{{ form.note }}</td>
           <td><button type="submit" class="btn btn-sm btn-primary">Add</button></td>

@@ -4,8 +4,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, permission_required
 from django.http import HttpResponse
 import datetime 
-from django.urls import include, path
-from django.db.models import Q
+from django.db.models import Q, Sum
 from .utils import search_guests
 from .models import *
 from .forms import *
@@ -270,8 +269,23 @@ def create_supplier(request):
 def trip_view(request,trip_id):
     trip = get_object_or_404(Trip,id=trip_id)
     flights = Flight.objects.filter(trip=trip)
-    print(flights)
-    return render(request, 'booking_system//trip/trip_view.html', {'trip': trip, 'flights':flights})
+    flight_totals_by_currency = (
+    flights.values('currency__code').annotate(total_price=Sum('price')).order_by('currency__code')
+    )
+    accommodations = Accommodation.objects.filter(trip=trip)
+    acc_totals_by_currency = (
+    accommodations.values('currency__code').annotate(total_price=Sum('price')).order_by('currency__code')
+    )
+
+    return render(request, 'booking_system//trip/trip_view.html', {
+        'trip': trip,
+        'flights': flights,
+        'flight_totals_by_currency': flight_totals_by_currency,
+        'accommodations': accommodations,
+        'acc_totals_by_currency': acc_totals_by_currency
+
+    })
+
 
 
 def guest_overview(request):

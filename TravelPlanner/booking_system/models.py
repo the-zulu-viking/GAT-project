@@ -163,7 +163,6 @@ class Accommodation(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
     currency = models.ForeignKey(Currency, on_delete=models.PROTECT, blank=True, null=True)
     reservation_number = models.CharField(max_length=256,blank=True, null=True )
-    tax_invoice= models.BooleanField(blank=True, null=True)
     paid= models.BooleanField(blank=True, null=True)
     paid_date = models.DateField(blank=True, null=True)
     note = models.TextField(blank=True)
