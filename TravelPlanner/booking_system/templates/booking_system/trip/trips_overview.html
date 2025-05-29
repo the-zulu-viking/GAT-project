@@ -27,7 +27,7 @@
     <select id="status" name="status" class="form-select">
       <option value="">All Statuses</option>
       {% for status in statuses %}
-        <option value="{{status.id}}" {% if status_filter == status.id|add:"" %}selected{% endif %}>{{status}}</option>
+        <option value="{{status.id}}" {% if status_filter == status.id|stringformat:"s" %}selected{% endif %}>{{status}}</option>
       {% endfor %}
     </select>
   </div>
@@ -43,9 +43,6 @@
   </div>
 </form>
 
-
-
 {% include "booking_system/partials/trip_list.html" %} 
-
 
 {%endblock body%}

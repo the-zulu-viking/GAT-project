@@ -32,12 +32,14 @@
       </div>
      
       <div>
+        {% if user.is_authenticated %}
     <a href="{% url 'guest_overview' %}" class="btn btn-outline-primary mt-4">← Back to Guests</a>
     <a href="{% url 'guest_edit' guest.id %}" class="btn btn-primary mt-4 "> <i class="bi bi-pencil-square"> </i> Edit</a>
+        {% endif %}
     
       </div>
   </div>
-  {% include "partials/trip_list.html" %} 
+  {% include "booking_system/partials/trip_list.html" %} 
 </div>
 
 

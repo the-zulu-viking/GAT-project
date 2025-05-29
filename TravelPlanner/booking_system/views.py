@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
+from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, permission_required
 from django.http import HttpResponse
@@ -15,7 +16,36 @@ from .forms import *
 def home(request):
     return render(request,"home.html")
 
+def signup_view(request):
+    if request.method == "POST":
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            return redirect("home")
+    else:
+        form = UserCreationForm()
+    return render(request, "sign_up.html", {"form": form})
 
+def login_view(request):
+    if request.method== "POST":
+        username = request.POST.get("username")
+        password= request.POST.get("password")
+        user = authenticate(request,
+        username=username, password=password)
+        if user is not None:
+            login(request, user)
+            return redirect(request.POST.get("next", "home"))
+        return render(request, "login.html", {
+                "username": username, "error": "Wrong password"
+            })
+    return render(request, "login.html")
+
+def logout_view(request):
+    logout(request)
+    return redirect("home")
+
+@login_required
 def trips_overview(request):
     search_query = request.GET.get('search', '')
     status_filter = request.GET.get('status', '')
@@ -49,7 +79,7 @@ def trips_overview(request):
     return render(request, 'booking_system/trip/trips_overview.html', context)
 
 # Step 1: Creating a trip or editting 
-
+@login_required
 def trip_form(request, trip_id=None):
     editing = trip_id is not None
     trip = get_object_or_404(Trip, id=trip_id) if editing else None
@@ -73,7 +103,7 @@ def trip_form(request, trip_id=None):
     })
 
 # Step 2: Adding Guests 
-
+@login_required
 def trip_guest_search(request, trip_id, slot_index):
     trip = get_object_or_404(Trip, id=trip_id)
     query = request.GET.get("q", "")
@@ -88,7 +118,7 @@ def trip_guest_search(request, trip_id, slot_index):
         "query": query
     })
 
-
+@login_required
 def trip_assign_guest(request, trip_id, slot_index, guest_id):
     trip = get_object_or_404(Trip, id=trip_id)
     guest = get_object_or_404(Guest, id=guest_id)
@@ -113,7 +143,7 @@ def trip_assign_guest(request, trip_id, slot_index, guest_id):
         else:
             return redirect('trip_add_flights', trip_id=trip.id)
 
-
+@login_required
 def trip_create_guest(request, trip_id, slot_index):
     trip = get_object_or_404(Trip, id=trip_id)
 
@@ -145,7 +175,7 @@ def trip_create_guest(request, trip_id, slot_index):
         'trip': trip,
         'slot_index': slot_index,
     })
-
+@login_required
 def trip_remove_guest(request, trip_id, guest_id):
     trip = get_object_or_404(Trip, id=trip_id)
     guest = get_object_or_404(Guest, id=guest_id)
@@ -180,7 +210,7 @@ def trip_remove_guest(request, trip_id, guest_id):
 
 # Step 3 Adding flights
 
-
+@login_required
 def trip_add_flights(request, trip_id):
     trip = get_object_or_404(Trip, id=trip_id)
     flights = Flight.objects.filter(trip=trip)
@@ -202,7 +232,7 @@ def trip_add_flights(request, trip_id):
         'flights': flights,
         'currencies':currencies
     })
-
+@login_required
 def trip_edit_flight(request, trip_id, flight_id):
     trip = get_object_or_404(Trip, id=trip_id)
     flight = get_object_or_404(Flight, id=flight_id, trip=trip)
@@ -212,7 +242,7 @@ def trip_edit_flight(request, trip_id, flight_id):
         if form.is_valid():
             form.save()
     return redirect('trip_add_flights', trip_id=trip.id)
-
+@login_required
 def trip_delete_flight(request, trip_id, flight_id):
     trip = get_object_or_404(Trip, id=trip_id)
     flight = get_object_or_404(Flight, id=flight_id, trip=trip)
@@ -222,6 +252,8 @@ def trip_delete_flight(request, trip_id, flight_id):
 
     return redirect('trip_add_flights', trip_id=trip.id)
 
+
+@login_required
 def trip_add_accommodations(request, trip_id):
     trip = get_object_or_404(Trip, id=trip_id)
     accommodations = Accommodation.objects.filter(trip=trip)
@@ -241,7 +273,7 @@ def trip_add_accommodations(request, trip_id):
         "form": form,
         "accommodations": accommodations,
     })
-
+@login_required
 def trip_delete_accommodation(request, trip_id, acc_id):
     trip = get_object_or_404(Trip, id=trip_id)
     accommodation = get_object_or_404(Accommodation, id=acc_id, trip=trip)
@@ -252,7 +284,7 @@ def trip_delete_accommodation(request, trip_id, acc_id):
 
 
 
-
+@login_required
 def create_supplier(request):
     if request.method == "POST":
         form = SupplierForm(request.POST)
@@ -262,7 +294,7 @@ def create_supplier(request):
     else:
         form = SupplierForm()
     
-    return render(request, "booking_system/accommodation/supplier_form.html", {
+    return render(request, "booking_system/supplier/supplier_form.html", {
         "form": form
     })
 
@@ -287,7 +319,7 @@ def trip_view(request,trip_id):
     })
 
 
-
+@login_required
 def guest_overview(request):
     
     search_query = request.GET.get('search', '')
@@ -313,7 +345,7 @@ def guest_view(request,guest_id):
     return render(request, 'booking_system/guest/guest_view.html', 
                   {'guest': guest,
                    'trips':trips,})
-
+@login_required
 def guest_edit(request,guest_id):
     guest = get_object_or_404(Guest,id=guest_id)
 
