@@ -82,13 +82,16 @@ urlpatterns = [
          name="trip_delete_accommodation"),
 
 
-    path('supplier/new/',
-          views.create_supplier, 
-          name='create_supplier'),
-
-
     # Guest URLs
     path("guest/", views.guest_overview, name='guest_overview'),
     path("guest/<int:guest_id>", views.guest_view, name='guest_view'),
+    #path("guest/new", views.guest_edit, name='create_guest'),
     path("guest/<int:guest_id>/edit", views.guest_edit, name='guest_edit'),
+
+    # Supplier URLs
+    path("supplier/", views.supplier_overview, name='supplier_overview'),
+    path("supplier/<int:supplier_id>", views.supplier_view , name='supplier_view'),
+    path('supplier/new/', views.create_supplier, name='create_supplier'),
+    #path("supplier/<int:supplier_id>/edit", views.guest_edit, name='guest_edit'),
+
 ]

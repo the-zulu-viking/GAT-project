@@ -1,0 +1,27 @@
+{%extends "base.html" %}
+
+
+{%block title %}{{ supplier }}{%endblock title%}
+
+
+{%block body%}
+
+<div class="container mt-5">
+  <div class="card shadow-lg border-0">
+    <div class="card-body">
+      <h2 class="card-title mb-4">{{ supplier  }}</h2>
+
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <p><strong>Number of Bed Nights total:</strong> {{ supplier.acc_bed_nights }} nights</p>
+        </div>
+
+      </div>
+
+  </div>
+  {% include "booking_system/partials/trip_list.html" %} 
+</div>
+
+
+
+{% endblock %}

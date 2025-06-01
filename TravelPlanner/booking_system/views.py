@@ -175,6 +175,8 @@ def trip_create_guest(request, trip_id, slot_index):
         'trip': trip,
         'slot_index': slot_index,
     })
+
+
 @login_required
 def trip_remove_guest(request, trip_id, guest_id):
     trip = get_object_or_404(Trip, id=trip_id)
@@ -242,6 +244,7 @@ def trip_edit_flight(request, trip_id, flight_id):
         if form.is_valid():
             form.save()
     return redirect('trip_add_flights', trip_id=trip.id)
+
 @login_required
 def trip_delete_flight(request, trip_id, flight_id):
     trip = get_object_or_404(Trip, id=trip_id)
@@ -283,20 +286,6 @@ def trip_delete_accommodation(request, trip_id, acc_id):
     return redirect("trip_add_accommodations", trip_id=trip.id)
 
 
-
-@login_required
-def create_supplier(request):
-    if request.method == "POST":
-        form = SupplierForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect(request.GET.get("next", "trips_overview"))
-    else:
-        form = SupplierForm()
-    
-    return render(request, "booking_system/supplier/supplier_form.html", {
-        "form": form
-    })
 
 def trip_view(request,trip_id):
     trip = get_object_or_404(Trip,id=trip_id)
@@ -362,3 +351,40 @@ def guest_edit(request,guest_id):
     return render(request, 'booking_system/guest/guest_edit.html', 
                   {'guest': guest,
                    "form": form})
+
+@login_required
+def supplier_overview(request):
+    search_query = request.GET.get('search', '')
+    if search_query:
+        suppliers = Supplier.objects.filter(name__icontains = search_query)
+    else:
+        suppliers = Supplier.objects.order_by()
+
+    context = {
+        'suppliers':suppliers
+        }
+    return render(request,"booking_system/supplier/supplier_overview.html", context=context)
+
+
+@login_required
+def supplier_view(request,supplier_id):
+    supplier = get_object_or_404(Supplier,id=supplier_id)
+    trips = supplier.accommodation_trips()
+
+    print(trips)
+    return render(request, 'booking_system/supplier/supplier_view.html', 
+                  {'supplier': supplier,'trips':trips })
+
+@login_required
+def create_supplier(request):
+    if request.method == "POST":
+        form = SupplierForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect(request.GET.get("next", "supplier_overview"))
+    else:
+        form = SupplierForm()
+    
+    return render(request, "booking_system/supplier/supplier_form.html", {
+        "form": form
+    })
