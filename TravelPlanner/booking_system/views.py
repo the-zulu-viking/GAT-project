@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.http import HttpResponse
 import datetime 
 from django.db.models import Q, Sum
-from .utils import search_guests, date_warning
+from .utils import search_guests
 from .models import *
 from .forms import *
 
@@ -243,6 +243,8 @@ def trip_edit_flight(request, trip_id, flight_id):
         form = FlightForm(request.POST, instance=flight)
         if form.is_valid():
             form.save()
+        else:
+            messages.error(request, "Error.")
     return redirect('trip_add_flights', trip_id=trip.id)
 
 @login_required
@@ -268,19 +270,18 @@ def trip_add_accommodations(request, trip_id):
             accommodation.trip = trip
 
             if accommodation.arrival_date and accommodation.arrival_date < trip.start_date:
-                messages.warning(request, "Accommodation arrival is before trip start date.")
+                messages.error(request, " Check-In is before trip start date.")
                 pass  
 
             elif accommodation.departure_date and accommodation.departure_date > trip.end_date:
-                messages.warning(request, "Accommodation departure is after trip end date.")
+                messages.error(request, "Check-Out departure is after trip end date.")
                 pass  
 
             else:
                 accommodation.save()
                 messages.success(request, "Accommodation added successfully.")
                 return redirect("trip_add_accommodations", trip_id=trip.id)
-        else:
-            messages.error(request, "Please correct the errors in the form.")
+        
     else:
         form = AccommodationForm()
 
@@ -313,6 +314,7 @@ def trip_delete_accommodation(request, trip_id, acc_id):
     trip = get_object_or_404(Trip, id=trip_id)
     accommodation = get_object_or_404(Accommodation, id=acc_id, trip=trip)
     if request.method == "POST":
+        messages.success(request, "Accommodation updated successfully.")
         accommodation.delete()
     return redirect("trip_add_accommodations", trip_id=trip.id)
 

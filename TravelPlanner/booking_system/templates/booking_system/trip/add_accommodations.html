@@ -2,6 +2,12 @@
 {% block title %}Add Accommodations{% endblock %}
 {% block body %}
 
+{% include "booking_system/partials/trip_details.html" %}
+
+<div class="container mt-5">
+  <div class="card shadow-lg border-0">
+  <div class="card-body">
+
 <h2 class="mb-4">Step 4: Add Accommodations</h2>
 
 <div class="progress mb-4">
@@ -9,11 +15,11 @@
 </div>
 
 {% if messages %}
-  <ul class="messages">
+<div class="alert alert-warning"><ul class="messages">
     {% for message in messages %}
       <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
     {% endfor %}
-  </ul>
+  </ul> </div>
 {% endif %}
 
 <div class="table-responsive">
@@ -113,5 +119,7 @@
   <a href="{% url 'trip_add_flights' trip.id  %}" class="btn btn-secondary">Back to Flights</a>
   <a href="{% url 'view_trip' trip.id %}" class="btn btn-outline-success">Finish Trip Setup</a>
 </div>
-
+  </div>
+</div>
+</div>
 {% endblock %}

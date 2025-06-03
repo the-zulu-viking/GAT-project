@@ -199,13 +199,13 @@ class Accommodation(models.Model):
     def __str__(self):
         return f"{self.trip} -- {self.supplier}"
     
-
     
     def clean(self):
-        """Ensure accommodation dates are correct."""
+        """Ensure accommodation dates are correct order."""
         if self.arrival_date and self.departure_date:
             if self.arrival_date >= self.departure_date:
                 raise ValidationError("Arrival date must be before departure date.")
+    
             
 
 
@@ -226,6 +226,13 @@ class Flight(models.Model):
 
     def __str__(self):
         return self.number
+    
+    def clean(self):
+        """Ensure  dates are in correct order."""
+        if self.arrival_date and self.departure_date:
+            if self.arrival_date <= self.departure_date:
+                raise ValidationError("Arrival date must be after departure date.")
+    
     
 class ServiceType(models.Model):
     title = models.CharField(max_length=255, unique=True)
