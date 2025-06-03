@@ -64,9 +64,14 @@ def trips_overview(request):
     status_filter = request.GET.get('status', '')
     start_date = request.GET.get('start_date', '')
     end_date = request.GET.get('end_date', '')
+    no_consultant_f = request.GET.get('no_consultant', '')
+    sa_consultant_f = request.GET.get('sa_consultant', '')
+
 
     trips = Trip.objects.all()
     statuses = TripStatus.objects.all()
+    cons = Consultant.objects.all()
+    
 
     if search_query:
         trips = trips.filter(name__icontains=search_query)
@@ -77,9 +82,14 @@ def trips_overview(request):
     if start_date:
         trips = trips.filter(start_date__gte=start_date)
         
-
     if end_date:
         trips = trips.filter(end_date__lte=end_date)
+    
+    if no_consultant_f:
+        trips = trips.filter(no_consultant=no_consultant_f)
+
+    if sa_consultant_f:
+        trips = trips.filter(sa_consultant=sa_consultant_f)
 
 
     context = {
@@ -89,14 +99,30 @@ def trips_overview(request):
         'status_filter': status_filter,
         'start_date': start_date,
         'end_date': end_date,
+        'cons': cons,
+        'no_consultant_f': no_consultant_f,
+        'sa_consultant_f': sa_consultant_f
     }
     return render(request, 'booking_system/trip/trips_overview.html', context)
 
 # Step 1: Creating a trip or editting 
 @login_required
 def trip_form(request, trip_id=None):
-    editing = trip_id is not None
+    if trip_id:
+        editing = True
+    else: 
+        editing = False
     trip = get_object_or_404(Trip, id=trip_id) if editing else None
+    initial = {}
+    if not editing:
+        try:
+            trip_con = Consultant.objects.get(user=request.user)
+            if trip_con.type == "NOR":
+                initial["no_consultant"] = trip_con
+            elif trip_con.type == "ZAR":
+                initial["sa_consultant"] = trip_con
+        except Consultant.DoesNotExist:
+            pass
 
     if request.method == 'POST':
         form = TripForm(request.POST, instance=trip)
@@ -108,12 +134,13 @@ def trip_form(request, trip_id=None):
             else:
                 return redirect('edit_trip', trip_id=trip.id)  # stays on same form
     else:
-        form = TripForm(instance=trip)
+        form = TripForm(instance=trip,initial=initial)
+        
 
     return render(request, 'booking_system/trip/trip_form.html', {
         'form': form,
         'editing': editing,
-        'trip': trip
+        'trip': trip,
     })
 
 # Step 2: Adding Guests 
@@ -248,6 +275,7 @@ def trip_add_flights(request, trip_id):
         'flights': flights,
         'currencies':currencies
     })
+
 @login_required
 def trip_edit_flight(request, trip_id, flight_id):
     trip = get_object_or_404(Trip, id=trip_id)

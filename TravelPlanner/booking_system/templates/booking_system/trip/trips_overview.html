@@ -4,30 +4,50 @@
 
 {%block body%}
 
-<form method="get" class="row g-3 mb-4 align-items-end">
+<form method="get" class="row g-3 mb-6 align-items-end">
 
-  <div class="col-md-3">
+  <div class="col-md-2">
     <label for="search" class="form-label">Trip Name</label>
     <input type="text" id="search" name="search" class="form-control" placeholder="Search by trip name"
            value="{{ search_query }}">
   </div>
 
-  <div class="col-md-2">
-    <label for="start-date" class="form-label">Start Date (from)</label>
+  <div class="col-md-1">
+    <label for="start-date" class="form-label">Start Date</label>
     <input type="date" id="start-date" name="start_date" class="form-control" value="{{ start_date }}">
   </div>
 
-  <div class="col-md-2">
-    <label for="end-date" class="form-label">End Date (to)</label>
+  <div class="col-md-1">
+    <label for="end-date" class="form-label">End Date</label>
     <input type="date" id="end-date" name="end_date" class="form-control" value="{{ end_date }}">
   </div>
 
-  <div class="col-md-3">
+  <div class="col-md-2">
     <label for="status" class="form-label">Trip Status</label>
     <select id="status" name="status" class="form-select">
       <option value="">All Statuses</option>
       {% for status in statuses %}
         <option value="{{status.id}}" {% if status_filter == status.id|stringformat:"s" %}selected{% endif %}>{{status}}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class="col-md-2">
+    <label for="no_consultant" class="form-label">NOR Consultant</label>
+    <select id="no_consultant" name="no_consultant" class="form-select">
+      <option value="">All Consultants</option>
+      {% for con in cons %}
+        <option value="{{con.id}}" {% if no_consultant_f == con.id|stringformat:"s" %}selected{% endif %}>{{con}}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class="col-md-2">
+    <label for="sa_consultant" class="form-label">ZAR Consultant</label>
+    <select id="sa_consultant" name="sa_consultant" class="form-select">
+      <option value="">All Consultants</option>
+      {% for con in cons %}
+        <option value="{{con.id}}" {% if sa_consultant_f == con.id|stringformat:"s" %} selected {% endif %}>{{con}}</option>
       {% endfor %}
     </select>
   </div>

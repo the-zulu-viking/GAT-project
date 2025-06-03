@@ -25,6 +25,7 @@
             <div class="col-md-6">
                 <div class="form-group">
                     <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+
                     {{ field }}
                     {% if field.help_text %}
                         <div class="form-text">{{ field.help_text }}</div>
@@ -44,7 +45,7 @@
         {% else %}
         <a class="btn btn-outline-danger" href="{% url 'trips_overview' %}">Cancel Creating a new Trip</a> 
         {% endif %}
-        <button type="submit" name="action" value="save" class="btn btn-primary">Save</button>
+        <button type="submit" name="action" value="save" class="btn btn-primary">Save and Exit</button>
         <button type="submit" name="action" value="save_next" class="btn btn-primary">Save and Next</button>
     </div>
 </form>

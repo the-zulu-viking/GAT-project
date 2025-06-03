@@ -44,7 +44,6 @@
           <li><a class="dropdown-item" href="{% url 'supplier_overview' %}">List</a></li>
           <li><a class="dropdown-item" href="{% url 'create_supplier' %}">New Supplier</a></li>
         </ul>
-      </li>
     </li>
     {% if user.is_superuser %}
     <li class="nav-item">
@@ -72,7 +71,6 @@
         {% endif %}
       </ul>
     </div>
-  </div>
 </nav>
 
 {% block header %}

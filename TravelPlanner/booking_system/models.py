@@ -228,9 +228,9 @@ class Flight(models.Model):
         return self.number
     
     def clean(self):
-        """Ensure  dates are in correct order."""
+        """Ensure dates are in correct order."""
         if self.arrival_date and self.departure_date:
-            if self.arrival_date <= self.departure_date:
+            if self.departure_date > self.arrival_date:
                 raise ValidationError("Arrival date must be after departure date.")
     
     
