@@ -10,6 +10,37 @@
 <figure class="text-center">
     <h1>Welcome to TUR Travel Dashboard</h1>
     <p class="lead mt-3">Your central hub for managing trips, guests, and travel logistics</p>
-  </figure>
+</figure>
+{% if user.is_authenticated %}
+  <div class="text-center mt-4 mb-5">
+    <a href="{% url 'trips_overview' %}" class="btn btn-primary btn-lg me-2">View All Trips</a>
+    <a href="{% url 'create_trip' %}" class="btn btn-success btn-lg me-2">Create New Trip</a>
+    <a href="{% url 'guest_overview' %}" class="btn btn-secondary btn-lg">Manage Guests</a>
+  </div>
+  
+  <div class="row text-center mt-5">
+    <div class="col-md-4">
+      <div class="card shadow-sm p-3">
+        <h4>Total Trips</h4>
+        <p class="display-6">{{ total_trips }}</p>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card shadow-sm p-3">
+        <h4>Upcoming Trips</h4>
+        <p class="display-6">{{ upcoming_trips }}</p>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card shadow-sm p-3">
+        <h4>Total Guests</h4>
+        <p class="display-6">{{ total_guests }}</p>
+      </div>
+    </div>
+  </div>
 
+  {% include "booking_system/partials/trip_list.html" %} 
+  {% else %}
+  <p class="lead mt-3">Please login</p>
+  {% endif %}
 {%endblock body%}

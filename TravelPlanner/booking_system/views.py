@@ -5,6 +5,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, permission_required
 from django.http import HttpResponse
 import datetime 
+from django.utils import timezone
 from django.db.models import Q, Sum
 from .utils import search_guests
 from .models import *
@@ -14,7 +15,19 @@ from .forms import *
 # Create your views here.
 
 def home(request):
-    return render(request,"home.html")
+    total_trips = Trip.objects.count()
+    trips = Trip.objects.filter(start_date__gte=timezone.now().date())[:10]
+    upcoming_trips = trips.count()
+    total_guests = Guest.objects.count()
+
+
+    context = {
+        'trips':trips,
+        'total_trips': total_trips,
+        'upcoming_trips': upcoming_trips,
+        'total_guests': total_guests,
+    }
+    return render(request, 'home.html', context)
 
 def signup_view(request):
     if request.method == "POST":
@@ -63,6 +76,7 @@ def trips_overview(request):
 
     if start_date:
         trips = trips.filter(start_date__gte=start_date)
+        
 
     if end_date:
         trips = trips.filter(end_date__lte=end_date)
