@@ -199,15 +199,7 @@ class Accommodation(models.Model):
     def __str__(self):
         return f"{self.trip} -- {self.supplier}"
     
-    def check_warnings(self):
-        """Return a list of soft warnings, not errors."""
-        warnings = []
-        if self.trip:
-            if self.arrival_date and self.arrival_date < self.trip.start_date:
-                warnings.append("Accommodation arrival is before trip start date.")
-            if self.departure_date and self.departure_date > self.trip.end_date:
-                warnings.append("Accommodation departure is after trip end date.")
-        return warnings
+
     
     def clean(self):
         """Ensure accommodation dates are correct."""

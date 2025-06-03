@@ -80,6 +80,9 @@ urlpatterns = [
     path("trips/create/<int:trip_id>/accommodations/<int:acc_id>/delete", 
          views.trip_delete_accommodation, 
          name="trip_delete_accommodation"),
+    path('trip/<int:trip_id>/accommodation/<int:accommodation_id>/edit/',
+          views.trip_edit_accommodation, 
+          name='trip_edit_accommodation'),
 
 
     # Guest URLs

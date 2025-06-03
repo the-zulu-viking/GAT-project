@@ -2,93 +2,100 @@
 {% block title %}Add Flights{% endblock %}
 {% block body %}
 
-<h2 class="mb-4">Step 3: Add Flights</h2>
+{% include "booking_system/partials/trip_details.html" %}
+<div class="container mt-5">
+<div class="card shadow-lg border-0">
+<div class="card-body">
+      <h2 class="mb-4">Step 3: Add Flights</h2>
 
-<div class="progress mb-4">
-  <div class="progress-bar bg-warning" style="width: 75%">Flights</div>
-</div>
+      <div class="progress mb-4">
+        <div class="progress-bar bg-warning" style="width: 75%">Flights</div>
+      </div>
 
-<div class="table-responsive">
-  <table class="table table-sm align-middle table-bordered">
-    <thead class="table-light">
+      <div class="table-responsive">
+        <table class="table table-sm align-middle table-bordered">
+          <thead class="table-light">
+            <tr>
+              <th>Flight #</th>
+              <th>Departure Airport</th>
+              <th>Departure Date</th>
+              <th>Departure Time</th>
+              <th>Arrival Airport</th>
+              <th>Arrival Date</th>
+              <th>Arrival Time</th>
+              <th>Booked By</th>
+              <th>Currency</th>
+              <th>Price</th>
+              <th>Note</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for flight in flights %}
       <tr>
-        <th>Flight #</th>
-        <th>Departure Airport</th>
-        <th>Departure Date</th>
-        <th>Departure Time</th>
-        <th>Arrival Airport</th>
-        <th>Arrival Date</th>
-        <th>Arrival Time</th>
-        <th>Booked By</th>
-        <th>Currency</th>
-        <th>Price</th>
-        <th>Note</th>
-        <th>Action</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for flight in flights %}
-<tr>
-  <form method="POST" action="{% url 'trip_edit_flight' trip.id flight.id %}">
-    {% csrf_token %}
-    <td><input type="text" name="number" class="form-control form-control-sm" value="{{ flight.number }}"></td>
-    <td><input type="text" name="departure_airport" class="form-control form-control-sm" value="{{ flight.departure_airport }}"></td>
-    <td><input type="date" name="departure_date" class="form-control form-control-sm" value="{{ flight.departure_date|date:'Y-m-d' }}"></td>
-    <td><input type="time" name="departure_time" class="form-control form-control-sm" value="{{ flight.departure_time }}"></td>
-    <td><input type="text" name="arrival_airport" class="form-control form-control-sm" value="{{ flight.arrival_airport }}"></td>
-    <td><input type="date" name="arrival_date" class="form-control form-control-sm" value="{{ flight.arrival_date|date:'Y-m-d' }}"></td>
-    <td><input type="time" name="arrival_time" class="form-control form-control-sm" value="{{ flight.arrival_time }}"></td>
-    <td><input type="text" name="booked_by" class="form-control form-control-sm" value="{{ flight.booked_by }}"></td>
-    <td>
-      <select name="currency" class="form-select form-select-sm">
-        {% for c in currencies %}
-        <option value="{{ c.id }}" {% if c.id == flight.currency.id %}selected{% endif %}>{{ c.code }}</option>
-        {% endfor %}
-      </select>
-    </td>
-    <td><input type="number" step="1" name="price" class="form-control form-control-sm" value="{{ flight.price }}"></td>
-    <td><textarea name="note" class="form-control form-control-sm">{{ flight.note }}</textarea></td>
-    <td class="d-flex gap-1">
-      <button type="submit" class="btn btn-sm btn-success">Save</button>
-  </form>
-  {% if flight.id %}
-  <form method="POST" action="{% url 'trip_delete_flight' trip.id flight.id %}">
-    {% csrf_token %}
-    <button type="submit" class="btn btn-sm btn-danger"
-            onclick="return confirm('Are you sure you want to delete this flight?');">
-      Delete
-    </button>
-  </form>
-  {% endif %}
-    </td>
-</tr>
-{% endfor %}
-
-      <!-- Add new flight -->
-      <tr>
-        <form method="POST" action="{% url 'trip_add_flights' trip.id %}">
+        <form method="POST" action="{% url 'trip_edit_flight' trip.id flight.id %}">
           {% csrf_token %}
-          <td>{{ form.number }}</td>
-          <td>{{ form.departure_airport }}</td>
-          <td>{{ form.departure_date }}</td>
-          <td>{{ form.departure_time }}</td>
-          <td>{{ form.arrival_airport }}</td>
-          <td>{{ form.arrival_date }}</td>
-          <td>{{ form.arrival_time }}</td>
-          <td>{{ form.booked_by }}</td>
-          <td>{{ form.currency }}</td>
-          <td>{{ form.price }}</td>
-          <td>{{ form.note }}</td>
-          <td><button type="submit" class="btn btn-sm btn-primary ">Add</button></td>
+          <td><input type="text" name="number" class="form-control form-control-sm" value="{{ flight.number }}"></td>
+          <td><input type="text" name="departure_airport" class="form-control form-control-sm" value="{{ flight.departure_airport }}"></td>
+          <td><input type="date" name="departure_date" class="form-control form-control-sm" value="{{ flight.departure_date|date:'Y-m-d' }}"></td>
+          <td><input type="time" name="departure_time" class="form-control form-control-sm" value="{{ flight.departure_time }}"></td>
+          <td><input type="text" name="arrival_airport" class="form-control form-control-sm" value="{{ flight.arrival_airport }}"></td>
+          <td><input type="date" name="arrival_date" class="form-control form-control-sm" value="{{ flight.arrival_date|date:'Y-m-d' }}"></td>
+          <td><input type="time" name="arrival_time" class="form-control form-control-sm" value="{{ flight.arrival_time }}"></td>
+          <td><input type="text" name="booked_by" class="form-control form-control-sm" value="{{ flight.booked_by }}"></td>
+          <td>
+            <select name="currency" class="form-select form-select-sm">
+              {% for c in currencies %}
+              <option value="{{ c.id }}" {% if c.id == flight.currency.id %}selected{% endif %}>{{ c.code }}</option>
+              {% endfor %}
+            </select>
+          </td>
+          <td><input type="number" step="1" name="price" class="form-control form-control-sm" value="{{ flight.price }}"></td>
+          <td><textarea name="note" class="form-control form-control-sm">{{ flight.note }}</textarea></td>
+          <td class="d-flex gap-1">
+            <button type="submit" class="btn btn-sm btn-success">Save</button>
         </form>
+        {% if flight.id %}
+        <form method="POST" action="{% url 'trip_delete_flight' trip.id flight.id %}">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-sm btn-danger"
+                  onclick="return confirm('Are you sure you want to delete this flight?');">
+            Delete
+          </button>
+        </form>
+        {% endif %}
+          </td>
       </tr>
-    </tbody>
-  </table>
-  <div class="d-flex justify-content-between mt-4">
-  <a href="{% url 'trip_guest_search' trip.id  0%}" class="btn btn-secondary">Back to Guests</a>
-  <a href="{% url 'view_trip' trip.id %}" class="btn btn-success">Exit Trip Setup</a>
-  <a href="{% url 'trip_add_accommodations' trip.id %}" class="btn btn-warning">Add Accomadation</a>
-</div>
+      {% endfor %}
+
+            <!-- Add new flight -->
+            <tr>
+              <form method="POST" action="{% url 'trip_add_flights' trip.id %}">
+                {% csrf_token %}
+                <td>{{ form.number }}</td>
+                <td>{{ form.departure_airport }}</td>
+                <td>{{ form.departure_date }}</td>
+                <td>{{ form.departure_time }}</td>
+                <td>{{ form.arrival_airport }}</td>
+                <td>{{ form.arrival_date }}</td>
+                <td>{{ form.arrival_time }}</td>
+                <td>{{ form.booked_by }}</td>
+                <td>{{ form.currency }}</td>
+                <td>{{ form.price }}</td>
+                <td>{{ form.note }}</td>
+                <td><button type="submit" class="btn btn-sm btn-primary ">Add</button></td>
+              </form>
+            </tr>
+          </tbody>
+        </table>
+        <div class="d-flex justify-content-between mt-4">
+        <a href="{% url 'trip_guest_search' trip.id  0%}" class="btn btn-secondary">Back to Guests</a>
+        <a href="{% url 'view_trip' trip.id %}" class="btn btn-success">Exit Trip Setup</a>
+        <a href="{% url 'trip_add_accommodations' trip.id %}" class="btn btn-warning">Add Accomadation</a>
+      </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 {% endblock %}

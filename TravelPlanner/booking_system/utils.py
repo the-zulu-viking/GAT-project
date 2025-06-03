@@ -15,3 +15,9 @@ def search_guests(query):
         Q(email__icontains=query)
     ).distinct()
 
+def date_warning(x):
+
+        if x.arrival_date and x.arrival_date < x.trip.start_date:
+            return messages.warning("Accommodation arrival is before trip start date.")
+        if x.departure_date and x.departure_date > x.trip.end_date:
+            warnings.append("Accommodation departure is after trip end date.")

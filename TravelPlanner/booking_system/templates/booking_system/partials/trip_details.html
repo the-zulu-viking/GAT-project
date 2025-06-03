@@ -1,0 +1,48 @@
+<div class="container mt-4">
+    <div class="card shadow-sm border-0">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h4 class="card-title mb-0">{{ trip.name }}</h4>
+          {% if user.is_authenticated and view %}
+          <div class="d-flex gap-2">
+            <a href="{% url 'trips_overview' %}" class="btn btn-sm btn-outline-secondary">← Back</a>
+            <a href="{% url 'edit_trip' trip.id %}" class="btn btn-sm btn-primary">
+              <i class="bi bi-pencil-square"></i> Edit
+            </a>
+          </div>
+          {% endif %}
+        </div>
+  
+        <div class="row small">
+          <div class="col-md-6">
+            <strong>Start:</strong> {{ trip.start_date }}<br>
+            <strong>End:</strong> {{ trip.end_date }}<br>
+            <strong>Duration:</strong> {{ trip.duration }} nights
+          </div>
+          <div class="col-md-6">
+            <strong>Guests:</strong> {{ trip.number_of_guests }}<br>
+            <strong>Status:</strong> <span class="badge bg-primary">{{ trip.trip_status }}</span><br>
+            <strong>Payment:</strong> <span class="badge bg-info text-dark">{{ trip.payment_status }}</span>
+          </div>
+        </div>
+  
+        <div class="row mt-3 small">
+          <div class="col-md-6">
+            <strong>Generated:</strong> {{ trip.generated }}<br>
+            {% if trip.agent %}
+            <strong>Agent:</strong> {{ trip.agent }}
+            {% endif %}
+          </div>
+          <div class="col-md-6">
+            {% if trip.no_consultant %}
+            <strong>Consultant (NO):</strong> {{ trip.no_consultant }}<br>
+            {% endif %}
+            {% if trip.sa_consultant %}
+            <strong>Consultant (SA):</strong> {{ trip.sa_consultant }}
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  

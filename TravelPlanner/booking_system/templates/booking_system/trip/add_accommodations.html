@@ -8,6 +8,14 @@
   <div class="progress-bar bg-success" style="width: 100%">Accommodations</div>
 </div>
 
+{% if messages %}
+  <ul class="messages">
+    {% for message in messages %}
+      <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+    {% endfor %}
+  </ul>
+{% endif %}
+
 <div class="table-responsive">
   <table class="table table-sm table-bordered align-middle">
     <thead class="table-light">
@@ -26,24 +34,46 @@
       </tr>
     </thead>
     <tbody>
+
       {% for acc in accommodations %}
       <tr>
-        <td>{{ acc.supplier }}</td>
-        <td>{{ acc.arrival_date }}</td>
-        <td>{{ acc.departure_date }}</td>
-        <td>{{ acc.units }}</td>
-        <td>{{ acc.basis }}</td>
-        <td>{{ acc.price }}</td>
-        <td>{{ acc.currency }}</td>
-        <td>{{ acc.reservation_number }}</td>
-        <td>{{ acc.paid_date }}</td>
-        <td>{{ acc.note }}</td>
-        <td>
-          <form method="POST" action="{% url 'trip_delete_accommodation' trip.id acc.id %}">
-            {% csrf_token %}
-            <button class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">Delete</button>
-          </form>
-        </td>
+        <form method="POST" action="{% url 'trip_edit_accommodation' trip.id acc.id %}">
+          {% csrf_token %}
+          <td>
+            <select name="supplier" class="form-select form-select-sm">
+              {% for supplier in suppliers %}
+                <option value="{{ supplier.id }}" {% if supplier.id == acc.supplier.id %}selected{% endif %}>
+                  {{ supplier.name }}
+                </option>
+              {% endfor %}
+            </select>
+          </td>
+          <td><input type="date" name="arrival_date" class="form-control form-control-sm" value="{{ acc.arrival_date|date:'Y-m-d' }}"></td>
+          <td><input type="date" name="departure_date" class="form-control form-control-sm" value="{{ acc.departure_date|date:'Y-m-d' }}"></td>
+          <td><input type="number" name="units" class="form-control form-control-sm" value="{{ acc.units }}"></td>
+          <td><input type="text" name="basis" class="form-control form-control-sm" value="{{ acc.basis }}"></td>
+          <td><input type="number" step="1" name="price" class="form-control form-control-sm" value="{{ acc.price }}"></td>
+          <td>
+            <select name="currency" class="form-select form-select-sm">
+              {% for c in currencies %}
+                <option value="{{ c.id }}" {% if c.id == acc.currency.id %}selected{% endif %}>{{ c.code }}</option>
+              {% endfor %}
+            </select>
+          </td>
+          <td><input type="text" name="reservation_number" class="form-control form-control-sm" value="{{ acc.reservation_number }}"></td>
+          <td><input type="date" name="paid_date" class="form-control form-control-sm" value="{{ acc.paid_date|date:'Y-m-d' }}"></td>
+          <td><textarea name="note" class="form-control form-control-sm">{{ acc.note }}</textarea></td>
+          <td class="d-flex gap-1">
+            <button type="submit" class="btn btn-sm btn-success">Save</button>
+        </form>
+        <form method="POST" action="{% url 'trip_delete_accommodation' trip.id acc.id %}">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-sm btn-danger"
+                  onclick="return confirm('Are you sure you want to delete this accommodation?');">
+            Delete
+          </button>
+        </form>
+          </td>
       </tr>
       {% endfor %}
 
@@ -51,6 +81,9 @@
       <tr>
         <form method="POST" action="{% url 'trip_add_accommodations' trip.id %}">
           {% csrf_token %}
+          {% if form.non_field_errors %}
+          <div class="alert alert-danger"> {{ form.non_field_errors }} </div>
+          {% endif %}
           <td>
             <div class="d-flex gap-1">
               {{ form.supplier }}

@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.http import HttpResponse
 import datetime 
 from django.db.models import Q, Sum
-from .utils import search_guests
+from .utils import search_guests, date_warning
 from .models import *
 from .forms import *
 
@@ -266,21 +266,52 @@ def trip_add_accommodations(request, trip_id):
         if form.is_valid():
             accommodation = form.save(commit=False)
             accommodation.trip = trip
-            accommodation.save()
-            return redirect("trip_add_accommodations", trip_id=trip.id)
+
+            if accommodation.arrival_date and accommodation.arrival_date < trip.start_date:
+                messages.warning(request, "Accommodation arrival is before trip start date.")
+                pass  
+
+            elif accommodation.departure_date and accommodation.departure_date > trip.end_date:
+                messages.warning(request, "Accommodation departure is after trip end date.")
+                pass  
+
+            else:
+                accommodation.save()
+                messages.success(request, "Accommodation added successfully.")
+                return redirect("trip_add_accommodations", trip_id=trip.id)
+        else:
+            messages.error(request, "Please correct the errors in the form.")
     else:
         form = AccommodationForm()
 
     return render(request, "booking_system/trip/add_accommodations.html", {
         "trip": trip,
         "form": form,
+        "currencies": Currency.objects.all(),
+        "suppliers": Supplier.objects.all(),
         "accommodations": accommodations,
     })
+
+
+@login_required
+def trip_edit_accommodation(request, trip_id, accommodation_id):
+    trip = get_object_or_404(Trip, id=trip_id)
+    accommodation = get_object_or_404(Accommodation, id=accommodation_id, trip=trip)
+
+    if request.method == 'POST':
+        form = AccommodationForm(request.POST, instance=accommodation)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Accommodation updated successfully.")
+        else:
+            messages.error(request, "Error updating accommodation.")
+    return redirect('trip_add_accommodations', trip_id=trip.id)
+
+
 @login_required
 def trip_delete_accommodation(request, trip_id, acc_id):
     trip = get_object_or_404(Trip, id=trip_id)
     accommodation = get_object_or_404(Accommodation, id=acc_id, trip=trip)
-
     if request.method == "POST":
         accommodation.delete()
     return redirect("trip_add_accommodations", trip_id=trip.id)
@@ -300,10 +331,12 @@ def trip_view(request,trip_id):
 
     return render(request, 'booking_system//trip/trip_view.html', {
         'trip': trip,
+        "view": True,
         'flights': flights,
         'flight_totals_by_currency': flight_totals_by_currency,
         'accommodations': accommodations,
-        'acc_totals_by_currency': acc_totals_by_currency
+        'acc_totals_by_currency': acc_totals_by_currency,
+        
 
     })
 
