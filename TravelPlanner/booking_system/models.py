@@ -169,7 +169,6 @@ class Supplier(models.Model):
     def __str__(self):
         return self.name
     
-
     
 class Accommodation(models.Model):  
     trip = models.ForeignKey(Trip, on_delete=models.PROTECT)

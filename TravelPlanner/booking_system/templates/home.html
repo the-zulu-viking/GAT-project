@@ -1,4 +1,7 @@
+
+
 {%extends "base.html" %}
+{% load static %}
 {%block title %}Home{%endblock title%}
 
 
@@ -42,5 +45,7 @@
   {% include "booking_system/partials/trip_list.html" %} 
   {% else %}
   <p class="lead mt-3">Please login</p>
+  <img src="{% static '/home_screen.png' %}" class="img-fluid" style="max-width:40vw;">
+
   {% endif %}
 {%endblock body%}
