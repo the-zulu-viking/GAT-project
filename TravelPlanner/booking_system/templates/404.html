@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+
+{% block title %} 404 {% endblock title %}
+
+{% block body %}
+{% load static %}
+<div class="container text-center">
+    <h1 class="display-4 fw-bold">Oops! - This adventure cannot be found yet...</h1>
+    <p class="lead mb-4">Dont't worry just go back to a familar place and start again</p>
+    <a href="{% url 'home' %}" class="btn btn-primary btn-lg">Return to Home</a>
+</div>
+<img src="{% static '/home_screen.png' %}" class="img-fluid" style="max-width:40vw ">
+
+{% endblock body %}
