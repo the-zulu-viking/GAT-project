@@ -41,11 +41,11 @@
     <div class="mt-6 text-end">
 
         {% if editing %}
-        <a class="btn btn-outline-danger" href="{% url 'view_trip' trip.id %}">Cancel Editing</a>
+        <a class="btn btn-outline-danger" href="{% url 'view_trip' trip.id %}">Exit Editing</a>
         {% else %}
         <a class="btn btn-outline-danger" href="{% url 'trips_overview' %}">Cancel Creating a new Trip</a> 
         {% endif %}
-        <button type="submit" name="action" value="save" class="btn btn-primary">Save and Exit</button>
+        <button type="submit" name="action" value="save" class="btn btn-primary">Save</button>
         <button type="submit" name="action" value="save_next" class="btn btn-primary">Save and Next</button>
     </div>
 </form>

@@ -1,0 +1,7 @@
+Python V 3.11.11
+
+Packages: 
+
+Django 
+Datetime 
+Phonenumber_field

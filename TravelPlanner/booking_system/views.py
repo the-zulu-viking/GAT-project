@@ -390,11 +390,7 @@ def guest_overview(request):
     
     search_query = request.GET.get('search', '')
     if search_query:
-        guests = Guest.objects.filter(
-            Q(first_name__icontains=search_query) |
-            Q(last_name__icontains=search_query) |
-            Q(email__icontains=search_query)
-        )
+        guests = search_guests(search_query)
     else:
         guests = Guest.objects.order_by()
 
