@@ -102,11 +102,9 @@ class Trip(models.Model):
     trip_status = models.ForeignKey(TripStatus, on_delete=models.PROTECT, blank=True, null=True)
 
     no_consultant = models.ForeignKey(
-        Consultant, on_delete=models.PROTECT, null=True, blank=True, related_name="no_consultant_trips"
-    )
+        Consultant, on_delete=models.PROTECT, null=True, blank=True, related_name="no_consultant_trips", verbose_name='Norwegian consultant')
     sa_consultant = models.ForeignKey(
-        Consultant, on_delete=models.PROTECT, null=True, blank=True, related_name="sa_consultant_trips"
-    )
+        Consultant, on_delete=models.PROTECT, null=True, blank=True, related_name="sa_consultant_trips", verbose_name='South African consultant')
 
     note = models.TextField(blank=True, null=True)
 
